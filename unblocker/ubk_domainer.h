@@ -116,11 +116,16 @@ namespace ubk
 		inline	::gpk::error_t												GetDomain					(int32_t index, ::gpk::view_const_char & output)			{ const int32_t viewIndex = Domain	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline	::gpk::error_t												GetUsername					(int32_t index, ::gpk::view_const_char & output)			{ const int32_t viewIndex = Username[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 				::gpk::error_t												GetEMail					(int32_t index, ::gpk::array_pod<char_t> & email)			{
+			ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
 			const int32_t															indexViewDomain				= Domain	[index];
 			const int32_t															indexViewUsername			= Username	[index];
+			if(0 > indexViewDomain)
+				return 0;
 			gpk_necall(email.append(Allocator.Views[indexViewUsername], Allocator.Counts[indexViewUsername]), "%s", "Out of memory?");
-			gpk_necall(email.push_back('@'), "%s", "Out of memory?");
-			gpk_necall(email.append(Allocator.Views[indexViewDomain], Allocator.Counts[indexViewDomain]), "%s", "Out of memory?");
+			if(0 <= indexViewDomain) {
+				gpk_necall(email.push_back('@'), "%s", "Out of memory?");
+				gpk_necall(email.append(Allocator.Views[indexViewDomain], Allocator.Counts[indexViewDomain]), "%s", "Out of memory?");
+			}
 			return 0;
 		}
 	};
