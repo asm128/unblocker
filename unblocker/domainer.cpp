@@ -69,7 +69,7 @@
 					remainder										= ::gpk::view_const_char{remainder.begin() + posQuery, remainder.size() - posQuery};
 				}
 				else { // No QueryString found. Read until the end unless fragment is found.
-					const ::gpk::error_t								posFragment							= ::gpk::find('#', ::gpk::view_const_char{&remainder[posQuery], remainder.size() - posQuery});
+					const ::gpk::error_t								posFragment							= ::gpk::find('#', remainder);
 					if(0 > posFragment) { // Read until the end unless fragment is found.
 						gpk_necall(idxPath = Allocator.View(remainder.begin(), (uint16_t)remainder.size()), "%s", "Out of memory?");
 						remainder										= {};
@@ -86,11 +86,11 @@
 			if(remainder.size()) {
 				const ::gpk::error_t								posFragment						= ::gpk::find('#', remainder);
 				if(0 > posFragment) { // Read until the end unless fragment is found.
-					gpk_necall(idxPath = Allocator.View(remainder.begin(), (uint16_t)remainder.size()), "%s", "Out of memory?");
+					gpk_necall(idxQuery = Allocator.View(remainder.begin(), (uint16_t)remainder.size()), "%s", "Out of memory?");
 					remainder										= {};
 				}
 				else {
-					gpk_necall(idxPath = Allocator.View(remainder.begin(), (uint16_t)posFragment), "%s", "Out of memory?");
+					gpk_necall(idxQuery = Allocator.View(remainder.begin(), (uint16_t)posFragment), "%s", "Out of memory?");
 					remainder										= ::gpk::view_const_char{remainder.begin() + posFragment, remainder.size() - posFragment};
 				}
 			}
