@@ -1,6 +1,7 @@
 #include "ubk_domainer.h"
 #include "gpk_find.h"
 #include "gpk_stdstring.h"
+#include "gpk_storage.h"
 
 
 ::gpk::error_t									ubk::SSMTPMapBlock::AddSMTPMap		(const ::gpk::view_const_char & textToAdd)		{
@@ -15,7 +16,7 @@
 	else {
 		gpk_necall(idxUsername = Allocator.View(textToAdd.begin(), (uint16_t)arrobaPos), "%s", "Out of memory?");
 		const uint32_t									offsetDomain						= arrobaPos + 1;
-		gpk_necall(idxDomain = Allocator.View(textToAdd.begin() + offsetDomain, (uint16_t)textToAdd.size() - (uint16_t)offsetDomain), "%s", "Out of memory?");
+		gpk_necall(idxDomain = Allocator.View(textToAdd.begin() + offsetDomain, (uint16_t)(textToAdd.size() - offsetDomain)), "%s", "Out of memory?");
 	}
 
 	gpk_necall(indexToReturn = Username	.push_back(idxUsername)	, "%s", "Out of memory?");
@@ -105,4 +106,22 @@
 	gpk_necall(Query	.push_back(idxQuery		), "%s", "Out of memory?");
 	gpk_necall(Fragment	.push_back(idxFragment	), "%s", "Out of memory?");
 	return indexToReturn;
+}
+
+		::gpk::error_t												ubk::SDomainer::GetEMail	(const uint64_t idRecord, ::gpk::array_pod<char_t> & email)	{
+	const uint32_t															idBlock						= (uint32_t)(idRecord / Email.BlockConfig.BlockSize);
+	const uint32_t															indexRecord					= (uint32_t)(idRecord % Email.BlockConfig.BlockSize);
+	for(uint32_t iBlock = 0; iBlock < Email.Id.size(); ++iBlock) {
+		if(idBlock == Email.Id[iBlock])
+			return Email.Block[iBlock].GetEMail(indexRecord, email);
+	}
+	::gpk::error_t															indexBlock					= Email.Block.push_back({});
+	gpk_necall(Email.Id.push_back(idBlock), "%s", "");
+	::gpk::array_pod<char_t>												fileName;
+	gpk_necall(::gpk::blockFileName(idBlock, Email.DBName, DBPath, fileName), "%s", "Out of memory?");
+	::gpk::array_pod<char_t>												fileBytes;
+	gpk_necall(::gpk::fileFromMemory({fileName.begin(), fileName.size()}, fileBytes), "Invalid record id: %llu. Block doesn't exist.", idRecord);
+	::ubk::SSMTPMapBlock													& loadedBlock				= Email.Block[indexBlock];
+	gpk_necall(loadedBlock.Load(fileBytes), "Failed to load block data from %s", ::gpk::toString(fileName).begin());
+	return loadedBlock.GetEMail(indexRecord, email);
 }

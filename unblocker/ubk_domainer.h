@@ -130,38 +130,16 @@ namespace ubk
 		}
 	};
 
-
-
 	struct SDomainer {
-		static constexpr	const uint32_t									DEFAULT_BLOCK_SIZE			= 1024 * 1024;
-
 				::gpk::SMapBlock<::ubk::SSMTPMapBlock>						Email;
 				::gpk::SMapBlock<::ubk::SURLMapBlock>						URL;
 
-				::gpk::SBlockConfig											ConfigDB;
-				::gpk::SJSONFile											ConfigFile;
-
-				::gpk::error_t												Load						(::gpk::view_const_string fileName)						{
-			gpk_necall(::gpk::jsonFileRead(ConfigFile, fileName), "Failed to load file: %s.", ::gpk::toString(fileName).begin());
-			::gpk::error_t															indexJSONKey				= ::gpk::jsonExpressionResolve("key"		, ConfigFile.Reader, 0, ConfigDB.Key); (void)indexJSONKey;
-			::gpk::view_const_string												dummy;
-			::gpk::error_t															indexJSONBlockSize			= ::gpk::jsonExpressionResolve("blocksize"	, ConfigFile.Reader, 0, dummy);
-			::gpk::error_t															indexJSONDeflate			= ::gpk::jsonExpressionResolve("deflate"	, ConfigFile.Reader, 0, dummy);
-			ConfigDB.BlockSize													= (0 <= indexJSONBlockSize	) ? (uint32_t)	ConfigFile.Reader.Token[indexJSONBlockSize	].Value : DEFAULT_BLOCK_SIZE;
-			ConfigDB.Deflate													= (0 <= indexJSONDeflate	) ?				ConfigFile.Reader.Token[indexJSONDeflate	].Value : 0;
-			return 0;
-		}
-
-		//		::gpk::error_t												Save						(::gpk::view_const_string fileName)						{
-		//	return 0;
-		//}
+				::gpk::view_const_string									DBPath;
+				::gpk::error_t												GetEMail					(const uint64_t id, ::gpk::array_pod<char_t> & email);
+		//		int64_t														GetEMailId					(::gpk::array_pod<char_t> & email)	{
+		//	for(uint32_t iBlock = 0; iBlock < Email.MaxBlockOnDisk; ++iBlock) {
 		//
-		//		::gpk::error_t												GetEMail					(const uint64_t id, ::gpk::array_pod<char_t> & email)	{
-		//	return 0;
-		//}
-		//
-		//		int64_t														GetEMailId					(const uint64_t id, ::gpk::array_pod<char_t> & email)	{
-		//
+		//	}
 		//	return 0;
 		//}
 	};
