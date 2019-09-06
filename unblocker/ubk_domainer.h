@@ -49,16 +49,17 @@ namespace ubk
 			if(-1 != indexViewAuthority)
 				gpk_necall(url.append(Allocator.Views[indexViewAuthority], Allocator.Counts[indexViewAuthority]), "%s", "Out of memory?");
 			const int32_t															indexViewPath				= Path		[index];
-			if(-1 != indexViewPath) {
+			const int32_t															indexViewQuery				= Query		[index];
+			const int32_t															indexViewFragment			= Fragment	[index];
+			if(-1 != indexViewPath || -1 != indexViewQuery || -1 != indexViewFragment)
 				gpk_necall(url.push_back('/'), "%s", "Out of memory?");
+			if(-1 != indexViewPath) {
 				gpk_necall(url.append(Allocator.Views[indexViewPath], Allocator.Counts[indexViewPath]), "%s", "Out of memory?");
 			}
-			const int32_t															indexViewQuery				= Query		[index];
 			if(-1 != indexViewQuery) {
 				gpk_necall(url.push_back('?'), "%s", "Out of memory?");
 				gpk_necall(url.append(Allocator.Views[indexViewQuery], Allocator.Counts[indexViewQuery]), "%s", "Out of memory?");
 			}
-			const int32_t															indexViewFragment			= Fragment	[index];
 			if(-1 != indexViewFragment) {
 				gpk_necall(url.push_back('#'), "%s", "Out of memory?");
 				gpk_necall(url.append(Allocator.Views[indexViewFragment], Allocator.Counts[indexViewFragment]), "%s", "Out of memory?");
@@ -129,7 +130,6 @@ namespace ubk
 			return 0;
 		}
 	};
-
 	struct SDomainer {
 				::gpk::SMapBlock<::ubk::SSMTPMapBlock>						Email;
 				::gpk::SMapBlock<::ubk::SURLMapBlock>						URL;

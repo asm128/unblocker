@@ -108,20 +108,14 @@
 	return indexToReturn;
 }
 
-		::gpk::error_t												ubk::SDomainer::GetEMail	(const uint64_t idRecord, ::gpk::array_pod<char_t> & email)	{
-	const uint32_t															idBlock						= (uint32_t)(idRecord / Email.BlockConfig.BlockSize);
-	const uint32_t															indexRecord					= (uint32_t)(idRecord % Email.BlockConfig.BlockSize);
-	for(uint32_t iBlock = 0; iBlock < Email.Id.size(); ++iBlock) {
-		if(idBlock == Email.Id[iBlock])
-			return Email.Block[iBlock].GetEMail(indexRecord, email);
-	}
-	::gpk::error_t															indexBlock					= Email.Block.push_back({});
-	gpk_necall(Email.Id.push_back(idBlock), "%s", "");
-	::gpk::array_pod<char_t>												fileName;
-	gpk_necall(::gpk::blockFileName(idBlock, Email.DBName, DBPath, fileName), "%s", "Out of memory?");
+		::gpk::error_t												ubk::SDomainer::GetEMail			(const uint64_t idRecord, ::gpk::array_pod<char_t> & email)	{
+	::gpk::SRecordMap														recordMap;
 	::gpk::array_pod<char_t>												fileBytes;
-	gpk_necall(::gpk::fileFromMemory({fileName.begin(), fileName.size()}, fileBytes), "Invalid record id: %llu. Block doesn't exist.", idRecord);
-	::ubk::SSMTPMapBlock													& loadedBlock				= Email.Block[indexBlock];
-	gpk_necall(loadedBlock.Load(fileBytes), "Failed to load block data from %s", ::gpk::toString(fileName).begin());
-	return loadedBlock.GetEMail(indexRecord, email);
+	::gpk::error_t															indexBlock							= ::gpk::blockMapLoad(fileBytes, recordMap, Email, Email.DBName, DBPath, idRecord);
+	gpk_necall(indexBlock, "Invalid record id: %llu.", idRecord);
+	::ubk::SSMTPMapBlock													& loadedBlock						= Email.Block[indexBlock];
+	if(fileBytes.size())
+		gpk_necall(loadedBlock.Load(fileBytes), "Failed to load block data for record %llu.", idRecord);
+
+	return loadedBlock.GetEMail(recordMap.IndexRecord, email);
 }

@@ -45,10 +45,10 @@ int testDomainerURL() {
 	::ubk::SURLMapBlock						smtpCopy;
 	{
 		const ::gpk::view_const_string		strings	[]	=
-			{"https://prueba0@gmail.com/ruta?querystring#fragmento"
-			,"https://prueba0@prueba.com/ruta"
-			,"https://prueba1@prueba.com/ruta"
-			,"https://prueba2@hotmail.com/"
+			{ "https://prueba0@gmail.com/ruta?querystring#fragmento"
+			, "https://prueba0@prueba.com/ruta"
+			, "https://prueba1@prueba.com/ruta"
+			, "https://prueba2@hotmail.com/"
 			,
 			};
 		::gpk::array_pod<char_t>			file;
