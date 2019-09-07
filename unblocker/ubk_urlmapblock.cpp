@@ -86,9 +86,9 @@
 	return indexToReturn;
 }
 
-::gpk::error_t														ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
-	const ::ubk::URL_SCHEME													scheme								= Scheme	[index];
-	const int32_t															indexViewAuthority					= Authority	[index];
+::gpk::error_t									ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
+	const ::ubk::URL_SCHEME								scheme								= Scheme	[index];
+	const int32_t										indexViewAuthority					= Authority	[index];
 	if(::ubk::URL_SCHEME_default != scheme) {
 		gpk_necall(url.append(::gpk::get_value_label(scheme)), "%s", "Out of memory?");;
 		gpk_necall(url.push_back(':'), "%s", "Out of memory?");;
@@ -99,9 +99,9 @@
 	}
 	if(-1 != indexViewAuthority)
 		gpk_necall(url.append(Allocator.Views[indexViewAuthority], Allocator.Counts[indexViewAuthority]), "%s", "Out of memory?");
-	const int32_t															indexViewPath						= Path		[index];
-	const int32_t															indexViewQuery						= Query		[index];
-	const int32_t															indexViewFragment					= Fragment	[index];
+	const int32_t										indexViewPath						= Path		[index];
+	const int32_t										indexViewQuery						= Query		[index];
+	const int32_t										indexViewFragment					= Fragment	[index];
 	if(-1 != indexViewPath || -1 != indexViewQuery || -1 != indexViewFragment)
 		gpk_necall(url.push_back('/'), "%s", "Out of memory?");
 	if(-1 != indexViewPath) {
@@ -118,7 +118,7 @@
 	return 0;
 }
 
-::gpk::error_t														ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)		const		{
+::gpk::error_t									ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)		const		{
 	gpk_necall(::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output), "%s", "Out of memory?");
 	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
 		gpk_necall(output.append(Allocator.Views[iArray], Allocator.Counts[iArray]), "%s", "Out of memory?");
@@ -131,42 +131,42 @@
 	return 0;
 }
 
-::gpk::error_t														ubk::SURLMapBlock::Load				(const ::gpk::view_const_byte & input)				{
+::gpk::error_t									ubk::SURLMapBlock::Load				(const ::gpk::view_const_byte & input)				{
 	if(0 == input.size())
 		return 0;
 
-	const uint32_t															countArrays							= *(const uint32_t*)input.begin();
-	uint32_t																offsetArraySize						= sizeof(uint32_t);
-	typedef																	uint16_t							_tViewLen;
-	uint32_t																offsetArrayData						= offsetArraySize + sizeof(_tViewLen) * countArrays;
+	const uint32_t										countArrays							= *(const uint32_t*)input.begin();
+	uint32_t											offsetArraySize						= sizeof(uint32_t);
+	typedef												uint16_t							_tViewLen;
+	uint32_t											offsetArrayData						= offsetArraySize + sizeof(_tViewLen) * countArrays;
 	for(uint32_t iArray = 0; iArray < countArrays; ++iArray) {
-		const _tViewLen															currentArraySize					= *(_tViewLen*)&input[offsetArraySize];
+		const _tViewLen										currentArraySize					= *(_tViewLen*)&input[offsetArraySize];
 		Allocator.View(&input[offsetArrayData], currentArraySize);
-		offsetArrayData														+= currentArraySize;
-		offsetArraySize														+= sizeof(_tViewLen);
+		offsetArrayData									+= currentArraySize;
+		offsetArraySize									+= sizeof(_tViewLen);
 	}
-	const uint32_t															countMaps							= *(const uint32_t*)&input[offsetArrayData];
-	uint32_t																offsetDataScheme					= offsetArrayData		+ sizeof(uint32_t);
-	uint32_t																offsetDataAuthority					= offsetDataScheme		+ sizeof(::ubk::URL_SCHEME) * countMaps;
-	uint32_t																offsetDataPath						= offsetDataAuthority	+ sizeof(_tIndex)			* countMaps;
-	uint32_t																offsetDataQuery						= offsetDataPath		+ sizeof(_tIndex)			* countMaps;
-	uint32_t																offsetDataFragment					= offsetDataQuery		+ sizeof(_tIndex)			* countMaps;
+	const uint32_t										countMaps							= *(const uint32_t*)&input[offsetArrayData];
+	uint32_t											offsetDataScheme					= offsetArrayData		+ sizeof(uint32_t);
+	uint32_t											offsetDataAuthority					= offsetDataScheme		+ sizeof(::ubk::URL_SCHEME) * countMaps;
+	uint32_t											offsetDataPath						= offsetDataAuthority	+ sizeof(_tIndex)			* countMaps;
+	uint32_t											offsetDataQuery						= offsetDataPath		+ sizeof(_tIndex)			* countMaps;
+	uint32_t											offsetDataFragment					= offsetDataQuery		+ sizeof(_tIndex)			* countMaps;
 	gpk_necall(Scheme	.resize(countMaps), "%s", "Out of memory?");
 	gpk_necall(Authority.resize(countMaps), "%s", "Out of memory?");
 	gpk_necall(Path		.resize(countMaps), "%s", "Out of memory?");
 	gpk_necall(Query	.resize(countMaps), "%s", "Out of memory?");
 	gpk_necall(Fragment	.resize(countMaps), "%s", "Out of memory?");
 	for(uint32_t iMap = 0; iMap < countMaps; ++iMap) {
-		Scheme		[iMap]													= *(::ubk::URL_SCHEME*)&input[offsetDataScheme];
-		Authority	[iMap]													= *(const _tIndex*)&input[offsetDataAuthority	];
-		Path		[iMap]													= *(const _tIndex*)&input[offsetDataPath		];
-		Query		[iMap]													= *(const _tIndex*)&input[offsetDataQuery		];
-		Fragment	[iMap]													= *(const _tIndex*)&input[offsetDataFragment	];
-		offsetDataScheme													+= sizeof(::ubk::URL_SCHEME);
-		offsetDataAuthority													+= sizeof(_tIndex);
-		offsetDataPath														+= sizeof(_tIndex);
-		offsetDataQuery														+= sizeof(_tIndex);
-		offsetDataFragment													+= sizeof(_tIndex);
+		Scheme		[iMap]								= *(::ubk::URL_SCHEME*)&input[offsetDataScheme];
+		Authority	[iMap]								= *(const _tIndex*)&input[offsetDataAuthority	];
+		Path		[iMap]								= *(const _tIndex*)&input[offsetDataPath		];
+		Query		[iMap]								= *(const _tIndex*)&input[offsetDataQuery		];
+		Fragment	[iMap]								= *(const _tIndex*)&input[offsetDataFragment	];
+		offsetDataScheme								+= sizeof(::ubk::URL_SCHEME);
+		offsetDataAuthority								+= sizeof(_tIndex);
+		offsetDataPath									+= sizeof(_tIndex);
+		offsetDataQuery									+= sizeof(_tIndex);
+		offsetDataFragment								+= sizeof(_tIndex);
 	}
 	return 0;
 }
