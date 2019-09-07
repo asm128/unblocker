@@ -89,7 +89,7 @@
 		loadedBytes.clear();
 		const ::gpk::error_t													indexBlock							= ::gpk::blockMapLoad(loadedBytes, Email, fileNameCurrent, indexMap);
 		::ubk::SSMTPMapBlock													& block								= *Email.Block[indexBlock];
-		Email.Block[indexBlock]->Load(loadedBytes);
+		gpk_necall(block.Load(loadedBytes), "Failed to load block file: %s.", ::gpk::toString(fileNameCurrent).begin());
 		const int32_t															idEmail								= block.GetSMTPMapId(email);
 		if(0 <= idEmail) {
 			indexMap.IndexRecord												= idEmail;
