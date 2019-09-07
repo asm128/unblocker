@@ -9,6 +9,7 @@ int testSMTPMapBlock() {
 			,"prueba1@prueba.com"
 			,"prueba2@hotmail.com"
 			,"prueba0@gmail.com"
+			,"prueba0@prueba.com"
 			};
 		::gpk::array_pod<char_t>			file;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
@@ -16,7 +17,8 @@ int testSMTPMapBlock() {
 			ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
 			ce_if(smtpOrigin.GetEMail(indexOfMap, stored), "%s", "Test failed!");
-			ce_if((int32_t)iString != smtpOrigin.GetSMTPMapId(stored), "%s", "Test failed!");
+			const uint32_t						idStored			= smtpOrigin.GetSMTPMapId(stored);
+			ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
 		}
 		ree_if(smtpOrigin	.Save(file), "%s", "Error!");
@@ -50,6 +52,7 @@ int testURLMapBlock() {
 			, "https://prueba0@prueba.com/ruta"
 			, "https://prueba1@prueba.com/ruta"
 			, "https://prueba2@hotmail.com/"
+			, "https://prueba0@gmail.com/ruta?querystring#fragmento"
 			,
 			};
 		::gpk::array_pod<char_t>			file;

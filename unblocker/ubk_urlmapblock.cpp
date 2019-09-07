@@ -104,7 +104,7 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
+::gpk::error_t									ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		const	{
 	const ::ubk::URL_SCHEME								scheme								= Scheme	[index];
 	const int32_t										indexViewAuthority					= Authority	[index];
 	if(::ubk::URL_SCHEME_default != scheme) {
@@ -189,7 +189,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::GetURLMapId		(const ::gpk::view_const_char & textToAdd) {
+::gpk::error_t									ubk::SURLMapBlock::GetURLMapId		(const ::gpk::view_const_char & textToAdd) 	const	{
 	::ubk::URL_SCHEME									scheme								= ::ubk::URL_SCHEME_default;
 	::gpk::view_const_char								authority							= {};
 	::gpk::view_const_char								path								= {};
@@ -241,11 +241,8 @@
 						if(0 == currentFragmentLen || 0 == memcmp(Allocator.Views[idFragment], fragment.begin(), currentFragmentLen))
 							return iAddress;
 					}
-
 				}
-
 			}
-
 		}
 	}
 	return -1;

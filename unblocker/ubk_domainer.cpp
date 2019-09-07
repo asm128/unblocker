@@ -1,6 +1,6 @@
 #include "ubk_domainer.h"
 
-		::gpk::error_t												ubk::SDomainer::GetEMail			(const uint64_t idRecord, ::gpk::array_pod<char_t> & email)	{
+		::gpk::error_t												ubk::SDomainer::GetEMail			(const uint64_t idRecord, ::gpk::array_pod<char_t> & email)		{
 	::gpk::SRecordMap														recordMap;
 	::gpk::array_pod<char_t>												fileBytes;
 	::gpk::error_t															indexBlock							= ::gpk::blockMapLoad(fileBytes, recordMap, Email, Email.DBName, DBPath, idRecord);
@@ -12,7 +12,7 @@
 	return loadedBlock.GetEMail(recordMap.IndexRecord, email);
 }
 
-		::gpk::error_t												ubk::SDomainer::GetURL				(const uint64_t idRecord, ::gpk::array_pod<char_t> & url)	{
+		::gpk::error_t												ubk::SDomainer::GetURL				(const uint64_t idRecord, ::gpk::array_pod<char_t> & url)		{
 	::gpk::SRecordMap														recordMap;
 	::gpk::array_pod<char_t>												fileBytes;
 	::gpk::error_t															indexBlock							= ::gpk::blockMapLoad(fileBytes, recordMap, URL, URL.DBName, DBPath, idRecord);

@@ -13,7 +13,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::GetEMail		(int32_t index, ::gpk::array_pod<char_t> & email)	{
+::gpk::error_t									ubk::SSMTPMapBlock::GetEMail		(int32_t index, ::gpk::array_pod<char_t> & email)	const	{
 	ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
 	const int32_t										indexViewDomain						= Domain	[index];
 	const int32_t										indexViewUsername					= Username	[index];
@@ -39,7 +39,7 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::GetSMTPMapId	(const ::gpk::view_const_char & textToAdd) {
+::gpk::error_t									ubk::SSMTPMapBlock::GetSMTPMapId	(const ::gpk::view_const_char & textToAdd) 	const	{
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
 	::ubk::splitEmail(textToAdd, username, domain);
@@ -79,26 +79,26 @@
 	if(0 == input.size())
 		return 0;
 
-	const uint32_t								countArrays									= *(const uint32_t*)input.begin();
-	uint32_t									offsetArraySize								= sizeof(uint32_t);
-	typedef										uint16_t									_tViewLen;
-	uint32_t									offsetArrayData								= offsetArraySize + sizeof(_tViewLen) * countArrays;
+	const uint32_t										countArrays									= *(const uint32_t*)input.begin();
+	uint32_t											offsetArraySize								= sizeof(uint32_t);
+	typedef												uint16_t									_tViewLen;
+	uint32_t											offsetArrayData								= offsetArraySize + sizeof(_tViewLen) * countArrays;
 	for(uint32_t iArray = 0; iArray < countArrays; ++iArray) {
-		const _tViewLen								currentArraySize							= *(_tViewLen*)&input[offsetArraySize];
+		const _tViewLen										currentArraySize							= *(_tViewLen*)&input[offsetArraySize];
 		Allocator.View(&input[offsetArrayData], currentArraySize);
-		offsetArrayData							+= currentArraySize;
-		offsetArraySize							+= sizeof(_tViewLen);
+		offsetArrayData									+= currentArraySize;
+		offsetArraySize									+= sizeof(_tViewLen);
 	}
-	const uint32_t								countMaps									= *(const uint32_t*)&input[offsetArrayData];
-	uint32_t									offsetDataDomain							= offsetArrayData	+ sizeof(uint32_t);
-	uint32_t									offsetDataUsername							= offsetDataDomain	+ sizeof(_tIndex) * countMaps;
+	const uint32_t										countMaps									= *(const uint32_t*)&input[offsetArrayData];
+	uint32_t											offsetDataDomain							= offsetArrayData	+ sizeof(uint32_t);
+	uint32_t											offsetDataUsername							= offsetDataDomain	+ sizeof(_tIndex) * countMaps;
 	gpk_necall(Domain	.resize(countMaps), "%s", "Out of memory?");
 	gpk_necall(Username	.resize(countMaps), "%s", "Out of memory?");
 	for(uint32_t iMap = 0; iMap < countMaps; ++iMap) {
-		Domain	[iMap]							= *(_tIndex*)&input[offsetDataDomain	];
-		Username[iMap]							= *(_tIndex*)&input[offsetDataUsername	];
-		offsetDataDomain						+= sizeof(_tIndex);
-		offsetDataUsername						+= sizeof(_tIndex);
+		Domain	[iMap]									= *(_tIndex*)&input[offsetDataDomain	];
+		Username[iMap]									= *(_tIndex*)&input[offsetDataUsername	];
+		offsetDataDomain								+= sizeof(_tIndex);
+		offsetDataUsername								+= sizeof(_tIndex);
 	}
 	return 0;
 }
