@@ -39,13 +39,12 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::GetSMTPMapId	(const ::gpk::view_const_char & textToAdd) 	const	{
+::gpk::error_t									ubk::SSMTPMapBlock::GetMapId	(const ::gpk::view_const_char & textToAdd) 	const	{
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
 	::ubk::splitEmail(textToAdd, username, domain);
 	for(uint32_t iAddress = 0; iAddress < Domain.size(); ++iAddress) {
 		const int32_t										idDomain							= Domain[iAddress];
-
 		const uint16_t										currentDomainLen					= (-1 == idDomain) ? 0 : Allocator.Counts[idDomain];
 		if(currentDomainLen != domain.size())
 			continue;

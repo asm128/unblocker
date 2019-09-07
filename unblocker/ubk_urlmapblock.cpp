@@ -189,13 +189,34 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::GetURLMapId		(const ::gpk::view_const_char & textToAdd) 	const	{
+template<typename _tElement, size_t _blockSize>
+::gpk::error_t									recursivelyCompare					(uint32_t & iAddress, const ::gpk::CViewManager<_tElement, _blockSize> & allocator, const ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart, const ::gpk::view_array<const ::gpk::view_array<const ::gpk::SInt24>> & idLists, const uint32_t idParent, uint32_t countAddresses) {
+	const ::gpk::view_const_char						currentPart							= parts[iPart];
+	for(; iAddress < countAddresses; ++iAddress) {
+		if(((int32_t)idParent) != idLists[iPart - 1][iAddress])
+			continue;
+		const uint32_t										idFragment							= idLists[iPart][iAddress];
+		const uint16_t										currentFragmentLen					= (-1 == idFragment) ? 0 : allocator.Counts[idFragment];
+		if(currentFragmentLen != currentPart.size())
+			continue;
+		if(parts.size() - 1 == iPart) {
+			if(0 == currentFragmentLen || 0 == memcmp(allocator.Views[idFragment], currentPart.begin(), currentFragmentLen))
+				return iAddress;
+		}
+		else {
+			if(currentFragmentLen && 0 != memcmp(allocator.Views[idFragment], currentPart.begin(), currentFragmentLen))
+				continue;
+			return ::recursivelyCompare(iAddress, allocator, parts, iPart + 1, idLists, idFragment, countAddresses);
+		}
+	}
+	return -1;
+}
+
+::gpk::error_t									ubk::SURLMapBlock::GetMapId			(const ::gpk::view_const_char & textToAdd) 	const	{
 	::ubk::URL_SCHEME									scheme								= ::ubk::URL_SCHEME_default;
-	::gpk::view_const_char								authority							= {};
-	::gpk::view_const_char								path								= {};
-	::gpk::view_const_char								query								= {};
-	::gpk::view_const_char								fragment							= {};
-	::ubk::splitURL(textToAdd, scheme, authority, path, query, fragment);
+	::gpk::view_const_char								parts	[4]							= {};
+	const ::gpk::view_array<const ::gpk::SInt24>		ids		[4]							= {Authority, Path, Query, Fragment};
+	::ubk::splitURL(textToAdd, scheme, parts[0], parts[1], parts[2], parts[3]);
 	for(uint32_t iAddress = 0; iAddress < Scheme.size(); ++iAddress) {
 		const uint32_t										idScheme							= Scheme[iAddress];
 		const uint16_t										currentSchemeLen					= Allocator.Counts[idScheme];
@@ -206,43 +227,14 @@
 				continue;
 			const uint32_t										idAuthority						= Authority[iAddress];
 			const uint16_t										currentAuthorityLen				= (-1 == idAuthority) ? 0 : Allocator.Counts[idAuthority];
-			if(currentAuthorityLen != authority.size())
+			if(currentAuthorityLen != parts[0].size())
 				continue;
-			if(currentAuthorityLen && 0 != memcmp(Allocator.Views[idAuthority], authority.begin(), currentAuthorityLen))
+			if(currentAuthorityLen && 0 != memcmp(Allocator.Views[idAuthority], parts[0].begin(), currentAuthorityLen))
 				continue;
 
-			for(; iAddress < Scheme.size(); ++iAddress) {
-				if(((int32_t)idAuthority) != Authority[iAddress])
-					continue;
-				const uint32_t										idPath							= Path[iAddress];
-				const uint16_t										currentPathLen					= (-1 == idPath) ? 0 : Allocator.Counts[idPath];
-				if(currentPathLen != path.size())
-					continue;
-				if(currentPathLen && 0 != memcmp(Allocator.Views[idPath], path.begin(), currentPathLen))
-					continue;
-
-				for(; iAddress < Scheme.size(); ++iAddress) {
-					if(((int32_t)idPath) != Path[iAddress])
-						continue;
-					const uint32_t										idQuery							= Query[iAddress];
-					const uint16_t										currentQueryLen					= (-1 == idQuery) ? 0 : Allocator.Counts[idQuery];
-					if(currentQueryLen != query.size())
-						continue;
-					if(currentQueryLen && 0 != memcmp(Allocator.Views[idQuery], query.begin(), currentQueryLen))
-						continue;
-
-					for(; iAddress < Scheme.size(); ++iAddress) {
-						if(((int32_t)idQuery) != Query[iAddress])
-							continue;
-						const uint32_t										idFragment							= Fragment[iAddress];
-						const uint16_t										currentFragmentLen					= (-1 == idFragment) ? 0 : Allocator.Counts[idFragment];
-						if(currentFragmentLen != fragment.size())
-							continue;
-						if(0 == currentFragmentLen || 0 == memcmp(Allocator.Views[idFragment], fragment.begin(), currentFragmentLen))
-							return iAddress;
-					}
-				}
-			}
+			::gpk::error_t										compare								= ::recursivelyCompare(iAddress, Allocator, parts, 1, ids, idAuthority, Scheme.size());
+			if(0 <= compare)
+				return compare;
 		}
 	}
 	return -1;

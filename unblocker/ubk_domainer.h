@@ -34,7 +34,7 @@ namespace ubk
 				::gpk::error_t								Load						(const ::gpk::view_const_byte & input);
 
 				::gpk::error_t								AddURLMap					(const ::gpk::view_const_char & textToAdd);
-				::gpk::error_t								GetURLMapId					(const ::gpk::view_const_char & textToAdd)			const;
+				::gpk::error_t								GetMapId					(const ::gpk::view_const_char & textToAdd)			const;
 				::gpk::error_t								GetURL						(int32_t index, ::gpk::array_pod<char_t> & url)		const;
 
 		inline	::gpk::error_t								GetAuthority				(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Authority	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
@@ -54,7 +54,7 @@ namespace ubk
 				::gpk::error_t								Load						(const ::gpk::view_const_byte & input);
 
 				::gpk::error_t								AddSMTPMap					(const ::gpk::view_const_char & textToAdd);
-				::gpk::error_t								GetSMTPMapId				(const ::gpk::view_const_char & textToAdd)			const;
+				::gpk::error_t								GetMapId					(const ::gpk::view_const_char & textToAdd)			const;
 				::gpk::error_t								GetEMail					(int32_t index, ::gpk::array_pod<char_t> & email)	const;
 		inline	::gpk::error_t								GetDomain					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Domain	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline	::gpk::error_t								GetUsername					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Username[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
@@ -67,10 +67,11 @@ namespace ubk
 				::gpk::view_const_string					DBPath;
 				int64_t										AddEMail					(const ::gpk::view_const_char & email);
 				int64_t										AddURL						(const ::gpk::view_const_char & url);
-				int64_t										GetIdURL					(const ::gpk::view_const_char & email)					;
-				int64_t										GetIdEMail					(const ::gpk::view_const_char & url)					;
 				::gpk::error_t								GetEMail					(const uint64_t id, ::gpk::array_pod<char_t> & email)	;
 				::gpk::error_t								GetURL						(const uint64_t id, ::gpk::array_pod<char_t> & url)		;
+
+		inline	int64_t										GetIdEMail					(const ::gpk::view_const_char & email)	{ return ::gpk::getMapId(Email	, DBPath, email);	}
+		inline	int64_t										GetIdURL					(const ::gpk::view_const_char & url)	{ return ::gpk::getMapId(URL	, DBPath, url);		}
 	};
 
 			::gpk::error_t								splitEmail						(const ::gpk::view_const_char & textToAdd, ::gpk::view_const_char & username, ::gpk::view_const_char & domain);
