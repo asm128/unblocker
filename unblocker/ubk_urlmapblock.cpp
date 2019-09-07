@@ -73,34 +73,25 @@
 			}
 		}
 	}
-
 	return 0;
 }
 
 ::gpk::error_t									ubk::SURLMapBlock::AddURLMap		(const ::gpk::view_const_char & textToAdd)		{
 	::gpk::error_t										indexToReturn						= -1;
 
-	int32_t												idxAuthority						= -1;
-	int32_t												idxPath								= -1;
-	int32_t												idxQuery							= -1;
-	int32_t												idxFragment							= -1;
+	::gpk::view_const_char								parts	[4]							= {};
+	::gpk::SInt24										indices	[4]							= {};
 
 	::ubk::URL_SCHEME									scheme								= ::ubk::URL_SCHEME_default;
-	::gpk::view_const_char								authority							= {};
-	::gpk::view_const_char								path								= {};
-	::gpk::view_const_char								query								= {};
-	::gpk::view_const_char								fragment							= {};
-	::ubk::splitURL(textToAdd, scheme, authority, path, query, fragment);
+	::ubk::splitURL(textToAdd, scheme, parts[0], parts[1], parts[2], parts[3]);
 	// Read scheme
-	idxAuthority									= authority	.size() ? Allocator.View(authority	.begin(), (uint16_t)authority	.size()) : -1;
-	idxPath											= path		.size() ? Allocator.View(path		.begin(), (uint16_t)path		.size()) : -1;
-	idxQuery										= query		.size() ? Allocator.View(query		.begin(), (uint16_t)query		.size()) : -1;
-	idxFragment										= fragment	.size() ? Allocator.View(fragment	.begin(), (uint16_t)fragment	.size()) : -1;
+	for(uint32_t iPart = 0; iPart < ::gpk::size(parts); ++iPart)
+		indices[iPart]									= parts[iPart].size() ? Allocator.View(parts[iPart].begin(), (uint16_t)parts[iPart].size()) : -1;
 	gpk_necall(indexToReturn = Scheme	.push_back(scheme		), "%s", "Out of memory?");
-	gpk_necall(indexToReturn = Authority.push_back(idxAuthority	), "%s", "Out of memory?");
-	gpk_necall(indexToReturn = Path		.push_back(idxPath		), "%s", "Out of memory?");
-	gpk_necall(indexToReturn = Query	.push_back(idxQuery		), "%s", "Out of memory?");
-	gpk_necall(indexToReturn = Fragment	.push_back(idxFragment	), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Authority.push_back(indices[0]	), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Path		.push_back(indices[1]	), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Query	.push_back(indices[2]	), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Fragment	.push_back(indices[3]	), "%s", "Out of memory?");
 	return indexToReturn;
 }
 

@@ -56,8 +56,8 @@ namespace ubk
 				::gpk::error_t								AddSMTPMap					(const ::gpk::view_const_char & textToAdd);
 				::gpk::error_t								GetMapId					(const ::gpk::view_const_char & textToAdd)			const;
 				::gpk::error_t								GetEMail					(int32_t index, ::gpk::array_pod<char_t> & email)	const;
-		inline	::gpk::error_t								GetDomain					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Domain	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
-		inline	::gpk::error_t								GetUsername					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Username[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
+		inline	::gpk::error_t								GetDomain					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Domain		[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
+		inline	::gpk::error_t								GetUsername					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Username	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 	};
 
 	struct SDomainer {
