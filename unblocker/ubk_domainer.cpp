@@ -36,11 +36,28 @@
 }
 
 		int64_t														ubk::SDomainer::GetIdEMail			(const ::gpk::view_const_char & email)	{
-	(void)email;
+	uint64_t																container							= 0;
+	::gpk::crcGenerate(email, container);
+	container															= container % Email.BlockConfig.Containers;
+	::gpk::array_pod<uint32_t>												idBlocks							= Email.Id;
 	for(uint32_t iBlock = 0; iBlock < Email.Block.size(); ++iBlock) {
+		if(Email.IdContainer[iBlock] != container)
+			continue;
 		const ::ubk::SSMTPMapBlock												& block								= Email.Block[iBlock];
+		int32_t																	idEmail								= block.GetSMTPMapId(email);
+		if(0 <= idEmail) {
+			::gpk::SRecordMap														indices;
+			indices.IndexContainer												= Email.IdContainer[iBlock];
+			indices.IdBlock														= Email.Id[iBlock];
+			indices.IndexRecord													= idEmail;
+			uint64_t																result								= (uint64_t)-1LL;
+			::gpk::blockRecordId(indices, Email.BlockConfig.BlockSize, result);
+			return result;
+		}
 		(void)block;
 	}
+	::gpk::array_pod<char_t>												containerPath						= {};
+	::gpk::blockFilePath(containerPath, Email.DBName, DBPath, Email.BlockConfig.Containers, (uint8_t)container);
 	return 0;
 }
 
