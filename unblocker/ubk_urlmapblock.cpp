@@ -2,25 +2,19 @@
 #include "gpk_find.h"
 #include "gpk_stdstring.h"
 
-::gpk::error_t									ubk::SURLMapBlock::AddURLMap		(const ::gpk::view_const_char & textToAdd)		{
-	::gpk::error_t										indexToReturn						= -1;
-
-	int32_t												idxAuthority						= -1;
-	int32_t												idxPath								= -1;
-	int32_t												idxQuery							= -1;
-	int32_t												idxFragment							= -1;
-
+::gpk::error_t									ubk::splitURL						(const ::gpk::view_const_char & textToAdd, ::ubk::URL_SCHEME & scheme, ::gpk::view_const_char & authority, ::gpk::view_const_char & path, ::gpk::view_const_char & query, ::gpk::view_const_char & fragment)	{
 	// Read scheme
 	const ::gpk::error_t								colonpos							= ::gpk::find(':', textToAdd);
 	uint32_t											nextOffset							= 0;
 	if(0 > colonpos)
-		gpk_necall(indexToReturn = Scheme.push_back(::ubk::URL_SCHEME_default), "%s", "Out of memory?");
+		scheme											= ::ubk::URL_SCHEME_default;
 	else {
 		nextOffset										= (colonpos + 1);
-		::gpk::array_pod<char_t>							scheme								= ::gpk::view_const_char{textToAdd.begin(), (uint32_t)colonpos};
-		::gpk::tolower(scheme);
-		gpk_necall(indexToReturn = Scheme.push_back(::gpk::get_value<::ubk::URL_SCHEME>(::gpk::view_const_string{scheme.begin(), scheme.size()})), "%s", "Out of memory?");
+		::gpk::array_pod<char_t>							strscheme							= ::gpk::view_const_char{textToAdd.begin(), (uint32_t)colonpos};
+		::gpk::tolower(strscheme);
+		scheme											= ::gpk::get_value<::ubk::URL_SCHEME>(::gpk::view_const_string{strscheme.begin(), strscheme.size()});
 	}
+
 	// Read either authority or path.
 	if(nextOffset < textToAdd.size()) {
 		::gpk::view_const_char								remainder							= ::gpk::view_const_char{textToAdd.begin() + nextOffset, textToAdd.size() - nextOffset};
@@ -29,11 +23,11 @@
 			if(remainder.size()) {
 				const ::gpk::error_t								posPath								= ::gpk::find('/', remainder);
 				if(0 > posPath) {
-					gpk_necall(idxAuthority = Allocator.View(remainder.begin(), (uint16_t)remainder.size()), "%s", "Out of memory?");
+					authority										= {remainder.begin(), (uint32_t)remainder.size()};
 					remainder										= {};
 				}
 				else {
-					gpk_necall(idxAuthority = Allocator.View(remainder.begin(), (uint16_t)posPath), "%s", "Out of memory?");
+					authority										= {remainder.begin(), (uint32_t)posPath};
 					remainder										= {remainder.begin() + posPath, remainder.size() - posPath};
 				}
 			}
@@ -43,17 +37,17 @@
 			if(remainder.size()) {
 				const ::gpk::error_t								posQuery							= ::gpk::find('?', remainder);
 				if(0 <= posQuery) { // QueryString found. Read up to there.
-					gpk_necall(idxPath = Allocator.View(remainder.begin(), (uint16_t)posQuery), "%s", "Out of memory?");
+					path											= {remainder.begin(), (uint32_t)posQuery};
 					remainder										= ::gpk::view_const_char{remainder.begin() + posQuery, remainder.size() - posQuery};
 				}
 				else { // No QueryString found. Read until the end unless fragment is found.
 					const ::gpk::error_t								posFragment							= ::gpk::find('#', remainder);
 					if(0 > posFragment) { // Read until the end unless fragment is found.
-						gpk_necall(idxPath = Allocator.View(remainder.begin(), (uint16_t)remainder.size()), "%s", "Out of memory?");
+						path											= remainder;
 						remainder										= {};
 					}
 					else {
-						gpk_necall(idxPath = Allocator.View(remainder.begin(), (uint16_t)posFragment), "%s", "Out of memory?");
+						path											= {remainder.begin(), (uint32_t)posFragment};
 						remainder										= ::gpk::view_const_char{remainder.begin() + posFragment, remainder.size() - posFragment};
 					}
 				}
@@ -63,11 +57,11 @@
 				if(remainder.size()) {
 					const ::gpk::error_t								posFragment						= ::gpk::find('#', remainder);
 					if(0 > posFragment) { // Read until the end unless fragment is found.
-						gpk_necall(idxQuery = Allocator.View(remainder.begin(), (uint16_t)remainder.size()), "%s", "Out of memory?");
+						query											= remainder;
 						remainder										= {};
 					}
 					else {
-						gpk_necall(idxQuery = Allocator.View(remainder.begin(), (uint16_t)posFragment), "%s", "Out of memory?");
+						query											= {remainder.begin(), (uint32_t)posFragment};
 						remainder										= ::gpk::view_const_char{remainder.begin() + posFragment, remainder.size() - posFragment};
 					}
 				}
@@ -75,14 +69,38 @@
 			if(remainder.size() && remainder[0] == '#') {	// Read optional fragment component
 				remainder										= ::gpk::view_const_char{remainder.begin() + 1, remainder.size() - 1};
 				if(remainder.size())
-					idxFragment										= Allocator.View(remainder.begin(), (uint16_t)remainder.size());
+					fragment										= remainder;
 			}
 		}
 	}
-	gpk_necall(Authority.push_back(idxAuthority	), "%s", "Out of memory?");
-	gpk_necall(Path		.push_back(idxPath		), "%s", "Out of memory?");
-	gpk_necall(Query	.push_back(idxQuery		), "%s", "Out of memory?");
-	gpk_necall(Fragment	.push_back(idxFragment	), "%s", "Out of memory?");
+
+	return 0;
+}
+
+::gpk::error_t									ubk::SURLMapBlock::AddURLMap		(const ::gpk::view_const_char & textToAdd)		{
+	::gpk::error_t										indexToReturn						= -1;
+
+	int32_t												idxAuthority						= -1;
+	int32_t												idxPath								= -1;
+	int32_t												idxQuery							= -1;
+	int32_t												idxFragment							= -1;
+
+	::ubk::URL_SCHEME									scheme								= ::ubk::URL_SCHEME_default;
+	::gpk::view_const_char								authority							= {};
+	::gpk::view_const_char								path								= {};
+	::gpk::view_const_char								query								= {};
+	::gpk::view_const_char								fragment							= {};
+	::ubk::splitURL(textToAdd, scheme, authority, path, query, fragment);
+	// Read scheme
+	idxAuthority									= authority	.size() ? Allocator.View(authority	.begin(), (uint16_t)authority	.size()) : -1;
+	idxPath											= path		.size() ? Allocator.View(path		.begin(), (uint16_t)path		.size()) : -1;
+	idxQuery										= query		.size() ? Allocator.View(query		.begin(), (uint16_t)query		.size()) : -1;
+	idxFragment										= fragment	.size() ? Allocator.View(fragment	.begin(), (uint16_t)fragment	.size()) : -1;
+	gpk_necall(indexToReturn = Scheme	.push_back(scheme		), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Authority.push_back(idxAuthority	), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Path		.push_back(idxPath		), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Query	.push_back(idxQuery		), "%s", "Out of memory?");
+	gpk_necall(indexToReturn = Fragment	.push_back(idxFragment	), "%s", "Out of memory?");
 	return indexToReturn;
 }
 
@@ -171,3 +189,64 @@
 	return 0;
 }
 
+::gpk::error_t									ubk::SURLMapBlock::GetURLMapId		(const ::gpk::view_const_char & textToAdd) {
+	::ubk::URL_SCHEME									scheme								= ::ubk::URL_SCHEME_default;
+	::gpk::view_const_char								authority							= {};
+	::gpk::view_const_char								path								= {};
+	::gpk::view_const_char								query								= {};
+	::gpk::view_const_char								fragment							= {};
+	::ubk::splitURL(textToAdd, scheme, authority, path, query, fragment);
+	for(uint32_t iAddress = 0; iAddress < Scheme.size(); ++iAddress) {
+		const uint32_t										idScheme							= Scheme[iAddress];
+		const uint16_t										currentSchemeLen					= Allocator.Counts[idScheme];
+		if(idScheme != scheme)
+			continue;
+		for(; iAddress < Scheme.size(); ++iAddress) {
+			if(idScheme != Scheme[iAddress])
+				continue;
+			const uint32_t										idAuthority						= Authority[iAddress];
+			const uint16_t										currentAuthorityLen				= (-1 == idAuthority) ? 0 : Allocator.Counts[idAuthority];
+			if(currentAuthorityLen != authority.size())
+				continue;
+			if(currentAuthorityLen && 0 != memcmp(Allocator.Views[idAuthority], authority.begin(), currentAuthorityLen))
+				continue;
+
+			for(; iAddress < Scheme.size(); ++iAddress) {
+				if(((int32_t)idAuthority) != Authority[iAddress])
+					continue;
+				const uint32_t										idPath							= Path[iAddress];
+				const uint16_t										currentPathLen					= (-1 == idPath) ? 0 : Allocator.Counts[idPath];
+				if(currentPathLen != path.size())
+					continue;
+				if(currentPathLen && 0 != memcmp(Allocator.Views[idPath], path.begin(), currentPathLen))
+					continue;
+
+				for(; iAddress < Scheme.size(); ++iAddress) {
+					if(((int32_t)idPath) != Path[iAddress])
+						continue;
+					const uint32_t										idQuery							= Query[iAddress];
+					const uint16_t										currentQueryLen					= (-1 == idQuery) ? 0 : Allocator.Counts[idQuery];
+					if(currentQueryLen != query.size())
+						continue;
+					if(currentQueryLen && 0 != memcmp(Allocator.Views[idQuery], query.begin(), currentQueryLen))
+						continue;
+
+					for(; iAddress < Scheme.size(); ++iAddress) {
+						if(((int32_t)idQuery) != Query[iAddress])
+							continue;
+						const uint32_t										idFragment							= Fragment[iAddress];
+						const uint16_t										currentFragmentLen					= (-1 == idFragment) ? 0 : Allocator.Counts[idFragment];
+						if(currentFragmentLen != fragment.size())
+							continue;
+						if(0 == currentFragmentLen || 0 == memcmp(Allocator.Views[idFragment], fragment.begin(), currentFragmentLen))
+							return iAddress;
+					}
+
+				}
+
+			}
+
+		}
+	}
+	return -1;
+}

@@ -34,6 +34,7 @@ namespace ubk
 					::gpk::error_t									Load						(const ::gpk::view_const_byte & input);
 
 					::gpk::error_t									AddURLMap					(const ::gpk::view_const_char & textToAdd);
+					::gpk::error_t									GetURLMapId					(const ::gpk::view_const_char & textToAdd);
 					::gpk::error_t									GetURL						(int32_t index, ::gpk::array_pod<char_t> & url);
 
 		inline		::gpk::error_t									GetAuthority				(int32_t index, ::gpk::view_const_char & output)	{ const int32_t viewIndex = Authority	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
@@ -73,6 +74,7 @@ namespace ubk
 	};
 
 				::gpk::error_t									splitEmail						(const ::gpk::view_const_char & textToAdd, ::gpk::view_const_char & username, ::gpk::view_const_char & domain);
+				::gpk::error_t									splitURL						(const ::gpk::view_const_char & textToAdd, ::ubk::URL_SCHEME & scheme, ::gpk::view_const_char & authority, ::gpk::view_const_char & path, ::gpk::view_const_char & query, ::gpk::view_const_char & fragment);
 } // namespace
 
 #endif // DOMAINER_H_2983749823748293

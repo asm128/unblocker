@@ -58,6 +58,8 @@ int testURLMapBlock() {
 			ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
 			ce_if(smtpOrigin.GetURL(indexOfMap, stored), "%s", "Test failed!");
+			int32_t								idStored				= smtpOrigin.GetURLMapId(stored);
+			ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
 		}
 		ree_if(smtpOrigin	.Save(file), "%s", "Error!");
