@@ -1,6 +1,6 @@
 #include "ubk_domainer.h"
 
-int testDomainerSMTP() {
+int testSMTPMapBlock() {
 	::ubk::SSMTPMapBlock				smtpOrigin;
 	::ubk::SSMTPMapBlock				smtpCopy;
 	{
@@ -40,7 +40,7 @@ int testDomainerSMTP() {
 	return 0;
 }
 
-int testDomainerURL() {
+int testURLMapBlock() {
 	::ubk::SURLMapBlock						smtpOrigin;
 	::ubk::SURLMapBlock						smtpCopy;
 	{
@@ -101,7 +101,11 @@ int testDomainerURL() {
 }
 
 int main() {
-	gerror_if(errored(testDomainerSMTP()), "%s", "Error!");
-	gerror_if(errored(testDomainerURL()), "%s", "Error!");
+	gerror_if(errored(testSMTPMapBlock()), "%s", "Error!");
+	gerror_if(errored(testURLMapBlock()), "%s", "Error!");
+
+	::ubk::SDomainer	domainer;
+	//::gpk::SRecordMap		indexMap;
+	//::gpk::blockMapSave(file, indexMap, smtpOrigin, ::gpk::view_const_string{"email"}, {});
 	return 0;
 }

@@ -1,28 +1,6 @@
 #include "ubk_domainer.h"
 #include "gpk_find.h"
 #include "gpk_stdstring.h"
-#include "gpk_storage.h"
-
-
-::gpk::error_t									ubk::SSMTPMapBlock::AddSMTPMap		(const ::gpk::view_const_char & textToAdd)		{
-	::gpk::error_t										indexToReturn						= -1;
-
-	int32_t												idxUsername							= -1;
-	int32_t												idxDomain							= -1;
-	const ::gpk::error_t								arrobaPos							= ::gpk::find('@', textToAdd);
-	if(0 > arrobaPos) {
-		gpk_necall(idxUsername = Allocator.View(textToAdd.begin(), (uint16_t)textToAdd.size()), "%s", "Out of memory?");
-	}
-	else {
-		gpk_necall(idxUsername = Allocator.View(textToAdd.begin(), (uint16_t)arrobaPos), "%s", "Out of memory?");
-		const uint32_t									offsetDomain						= arrobaPos + 1;
-		gpk_necall(idxDomain = Allocator.View(textToAdd.begin() + offsetDomain, (uint16_t)(textToAdd.size() - offsetDomain)), "%s", "Out of memory?");
-	}
-
-	gpk_necall(indexToReturn = Username	.push_back(idxUsername)	, "%s", "Out of memory?");
-	gpk_necall(indexToReturn = Domain	.push_back(idxDomain)	, "%s", "Out of memory?");
-	return indexToReturn;
-}
 
 ::gpk::error_t									ubk::SURLMapBlock::AddURLMap		(const ::gpk::view_const_char & textToAdd)		{
 	::gpk::error_t										indexToReturn						= -1;
@@ -108,31 +86,7 @@
 	return indexToReturn;
 }
 
-		::gpk::error_t												ubk::SDomainer::GetEMail			(const uint64_t idRecord, ::gpk::array_pod<char_t> & email)	{
-	::gpk::SRecordMap														recordMap;
-	::gpk::array_pod<char_t>												fileBytes;
-	::gpk::error_t															indexBlock							= ::gpk::blockMapLoad(fileBytes, recordMap, Email, Email.DBName, DBPath, idRecord);
-	gpk_necall(indexBlock, "Invalid record id: %llu.", idRecord);
-	::ubk::SSMTPMapBlock													& loadedBlock						= Email.Block[indexBlock];
-	if(fileBytes.size())
-		gpk_necall(loadedBlock.Load(fileBytes), "Failed to load block data for record %llu.", idRecord);
-
-	return loadedBlock.GetEMail(recordMap.IndexRecord, email);
-}
-
-		::gpk::error_t												ubk::SDomainer::GetURL				(const uint64_t idRecord, ::gpk::array_pod<char_t> & url)	{
-	::gpk::SRecordMap														recordMap;
-	::gpk::array_pod<char_t>												fileBytes;
-	::gpk::error_t															indexBlock							= ::gpk::blockMapLoad(fileBytes, recordMap, URL, URL.DBName, DBPath, idRecord);
-	gpk_necall(indexBlock, "Invalid record id: %llu.", idRecord);
-	::ubk::SURLMapBlock														& loadedBlock						= URL.Block[indexBlock];
-	if(fileBytes.size())
-		gpk_necall(loadedBlock.Load(fileBytes), "Failed to load block data for record %llu.", idRecord);
-
-	return loadedBlock.GetURL(recordMap.IndexRecord, url);
-}
-
-		::gpk::error_t												ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
+::gpk::error_t														ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
 	const ::ubk::URL_SCHEME													scheme								= Scheme	[index];
 	const int32_t															indexViewAuthority					= Authority	[index];
 	if(::ubk::URL_SCHEME_default != scheme) {
@@ -164,31 +118,7 @@
 	return 0;
 }
 
-		::gpk::error_t												ubk::SSMTPMapBlock::GetEMail		(int32_t index, ::gpk::array_pod<char_t> & email)	{
-	ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
-	const int32_t															indexViewDomain						= Domain	[index];
-	const int32_t															indexViewUsername					= Username	[index];
-	if(0 > indexViewDomain)
-		return 0;
-	gpk_necall(email.append(Allocator.Views[indexViewUsername], Allocator.Counts[indexViewUsername]), "%s", "Out of memory?");
-	if(0 <= indexViewDomain) {
-		gpk_necall(email.push_back('@'), "%s", "Out of memory?");
-		gpk_necall(email.append(Allocator.Views[indexViewDomain], Allocator.Counts[indexViewDomain]), "%s", "Out of memory?");
-	}
-	return 0;
-}
-
-		::gpk::error_t												ubk::SSMTPMapBlock::Save			(::gpk::array_pod<byte_t> & output)					{
-	::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output);
-	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
-		output.append(Allocator.Views[iArray], Allocator.Counts[iArray]);
-
-	::gpk::viewWrite(::gpk::view_array<const _tIndex>{Domain.begin(), Domain.size()}, output);
-	output.append(::gpk::view_const_byte{(const byte_t*)Username.begin(), Domain.size() * sizeof(_tIndex)});
-	return 0;
-}
-
-		::gpk::error_t												ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)					{
+::gpk::error_t														ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)		const		{
 	::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output);
 	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
 		output.append(Allocator.Views[iArray], Allocator.Counts[iArray]);
@@ -201,35 +131,7 @@
 	return 0;
 }
 
-		::gpk::error_t												ubk::SSMTPMapBlock::Load			(const ::gpk::view_const_byte & input)				{
-	if(0 == input.size())
-		return 0;
-
-	const uint32_t															countArrays							= *(const uint32_t*)input.begin();
-	uint32_t																offsetArraySize						= sizeof(uint32_t);
-	typedef																	uint16_t							_tViewLen;
-	uint32_t																offsetArrayData						= offsetArraySize + sizeof(_tViewLen) * countArrays;
-	for(uint32_t iArray = 0; iArray < countArrays; ++iArray) {
-		const _tViewLen															currentArraySize					= *(_tViewLen*)&input[offsetArraySize];
-		Allocator.View(&input[offsetArrayData], currentArraySize);
-		offsetArrayData														+= currentArraySize;
-		offsetArraySize														+= sizeof(_tViewLen);
-	}
-	const uint32_t															countMaps					= *(const uint32_t*)&input[offsetArrayData];
-	uint32_t																offsetDataDomain			= offsetArrayData	+ sizeof(uint32_t);
-	uint32_t																offsetDataUsername			= offsetDataDomain	+ sizeof(_tIndex) * countMaps;
-	gpk_necall(Domain	.resize(countMaps), "%s", "Out of memory?");
-	gpk_necall(Username	.resize(countMaps), "%s", "Out of memory?");
-	for(uint32_t iMap = 0; iMap < countMaps; ++iMap) {
-		Domain	[iMap]														= *(_tIndex*)&input[offsetDataDomain	];
-		Username[iMap]														= *(_tIndex*)&input[offsetDataUsername];
-		offsetDataDomain													+= sizeof(_tIndex);
-		offsetDataUsername													+= sizeof(_tIndex);
-	}
-	return 0;
-}
-
-		::gpk::error_t												ubk::SURLMapBlock::Load				(const ::gpk::view_const_byte & input)				{
+::gpk::error_t														ubk::SURLMapBlock::Load				(const ::gpk::view_const_byte & input)				{
 	if(0 == input.size())
 		return 0;
 
@@ -268,3 +170,4 @@
 	}
 	return 0;
 }
+

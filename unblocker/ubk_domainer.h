@@ -30,7 +30,7 @@ namespace ubk
 					::gpk::array_pod<_tIndex>									Query						;
 					::gpk::array_pod<_tIndex>									Fragment					;
 
-					::gpk::error_t												Save						(::gpk::array_pod<byte_t> & output);
+					::gpk::error_t												Save						(::gpk::array_pod<byte_t> & output)			const;
 					::gpk::error_t												Load						(const ::gpk::view_const_byte & input);
 
 					::gpk::error_t												AddURLMap					(const ::gpk::view_const_char & textToAdd);
@@ -49,7 +49,7 @@ namespace ubk
 					::gpk::array_pod<_tIndex>									Username					;
 					::gpk::array_pod<_tIndex>									Domain						;
 
-					::gpk::error_t												Save						(::gpk::array_pod<byte_t> & output);
+					::gpk::error_t												Save						(::gpk::array_pod<byte_t> & output)			const;
 					::gpk::error_t												Load						(const ::gpk::view_const_byte & input);
 
 					::gpk::error_t												AddSMTPMap					(const ::gpk::view_const_char & textToAdd);
@@ -57,6 +57,7 @@ namespace ubk
 		inline		::gpk::error_t												GetDomain					(int32_t index, ::gpk::view_const_char & output)	{ const int32_t viewIndex = Domain	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline		::gpk::error_t												GetUsername					(int32_t index, ::gpk::view_const_char & output)	{ const int32_t viewIndex = Username[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 	};
+
 	struct SDomainer {
 					::gpk::SMapBlock<::ubk::SSMTPMapBlock>						Email;
 					::gpk::SMapBlock<::ubk::SURLMapBlock>						URL;
@@ -64,12 +65,10 @@ namespace ubk
 					::gpk::view_const_string									DBPath;
 					::gpk::error_t												GetEMail					(const uint64_t id, ::gpk::array_pod<char_t> & email);
 					::gpk::error_t												GetURL						(const uint64_t id, ::gpk::array_pod<char_t> & url);
-		//			int64_t														GetEMailId					(::gpk::array_pod<char_t> & email)	{
-		//	for(uint32_t iBlock = 0; iBlock < Email.MaxBlockOnDisk; ++iBlock) {
-		//
-		//	}
-		//	return 0;
-		//}
+					int64_t														AddEMail					(const ::gpk::view_const_char & email);
+					int64_t														AddURL						(const ::gpk::view_const_char & url);
+					int64_t														GetIdURL					(const ::gpk::view_const_char & email);
+					int64_t														GetIdEMail					(const ::gpk::view_const_char & url);
 	};
 } // namespace
 
