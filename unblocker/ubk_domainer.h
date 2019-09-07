@@ -63,6 +63,7 @@ namespace ubk
 
 					::gpk::view_const_string									DBPath;
 					::gpk::error_t												GetEMail					(const uint64_t id, ::gpk::array_pod<char_t> & email);
+					::gpk::error_t												GetURL						(const uint64_t id, ::gpk::array_pod<char_t> & url);
 		//			int64_t														GetEMailId					(::gpk::array_pod<char_t> & email)	{
 		//	for(uint32_t iBlock = 0; iBlock < Email.MaxBlockOnDisk; ++iBlock) {
 		//

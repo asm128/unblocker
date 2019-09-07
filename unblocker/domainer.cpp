@@ -120,6 +120,50 @@
 	return loadedBlock.GetEMail(recordMap.IndexRecord, email);
 }
 
+		::gpk::error_t												ubk::SDomainer::GetURL				(const uint64_t idRecord, ::gpk::array_pod<char_t> & url)	{
+	::gpk::SRecordMap														recordMap;
+	::gpk::array_pod<char_t>												fileBytes;
+	::gpk::error_t															indexBlock							= ::gpk::blockMapLoad(fileBytes, recordMap, URL, URL.DBName, DBPath, idRecord);
+	gpk_necall(indexBlock, "Invalid record id: %llu.", idRecord);
+	::ubk::SURLMapBlock														& loadedBlock						= URL.Block[indexBlock];
+	if(fileBytes.size())
+		gpk_necall(loadedBlock.Load(fileBytes), "Failed to load block data for record %llu.", idRecord);
+
+	return loadedBlock.GetURL(recordMap.IndexRecord, url);
+}
+
+		::gpk::error_t												ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
+	const ::ubk::URL_SCHEME													scheme								= Scheme	[index];
+	const int32_t															indexViewAuthority					= Authority	[index];
+	if(::ubk::URL_SCHEME_default != scheme) {
+		url.append(::gpk::get_value_label(scheme));
+		url.push_back(':');
+		if(-1 != indexViewAuthority) {
+			url.push_back('/');
+			url.push_back('/');
+		}
+	}
+	if(-1 != indexViewAuthority)
+		gpk_necall(url.append(Allocator.Views[indexViewAuthority], Allocator.Counts[indexViewAuthority]), "%s", "Out of memory?");
+	const int32_t															indexViewPath						= Path		[index];
+	const int32_t															indexViewQuery						= Query		[index];
+	const int32_t															indexViewFragment					= Fragment	[index];
+	if(-1 != indexViewPath || -1 != indexViewQuery || -1 != indexViewFragment)
+		gpk_necall(url.push_back('/'), "%s", "Out of memory?");
+	if(-1 != indexViewPath) {
+		gpk_necall(url.append(Allocator.Views[indexViewPath], Allocator.Counts[indexViewPath]), "%s", "Out of memory?");
+	}
+	if(-1 != indexViewQuery) {
+		gpk_necall(url.push_back('?'), "%s", "Out of memory?");
+		gpk_necall(url.append(Allocator.Views[indexViewQuery], Allocator.Counts[indexViewQuery]), "%s", "Out of memory?");
+	}
+	if(-1 != indexViewFragment) {
+		gpk_necall(url.push_back('#'), "%s", "Out of memory?");
+		gpk_necall(url.append(Allocator.Views[indexViewFragment], Allocator.Counts[indexViewFragment]), "%s", "Out of memory?");
+	}
+	return 0;
+}
+
 		::gpk::error_t												ubk::SSMTPMapBlock::GetEMail		(int32_t index, ::gpk::array_pod<char_t> & email)	{
 	ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
 	const int32_t															indexViewDomain						= Domain	[index];
@@ -141,6 +185,19 @@
 
 	::gpk::viewWrite(::gpk::view_array<const _tIndex>{Domain.begin(), Domain.size()}, output);
 	output.append(::gpk::view_const_byte{(const byte_t*)Username.begin(), Domain.size() * sizeof(_tIndex)});
+	return 0;
+}
+
+		::gpk::error_t												ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)					{
+	::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output);
+	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
+		output.append(Allocator.Views[iArray], Allocator.Counts[iArray]);
+
+	::gpk::viewWrite(::gpk::view_array<const ::ubk::URL_SCHEME>{Scheme.begin(), Scheme.size()}, output);
+	output.append(::gpk::view_const_byte{(const byte_t*)Authority	.begin(), Scheme.size() * sizeof(_tIndex)});
+	output.append(::gpk::view_const_byte{(const byte_t*)Path		.begin(), Scheme.size() * sizeof(_tIndex)});
+	output.append(::gpk::view_const_byte{(const byte_t*)Query		.begin(), Scheme.size() * sizeof(_tIndex)});
+	output.append(::gpk::view_const_byte{(const byte_t*)Fragment	.begin(), Scheme.size() * sizeof(_tIndex)});
 	return 0;
 }
 
@@ -169,19 +226,6 @@
 		offsetDataDomain													+= sizeof(_tIndex);
 		offsetDataUsername													+= sizeof(_tIndex);
 	}
-	return 0;
-}
-
-		::gpk::error_t												ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)					{
-	::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output);
-	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
-		output.append(Allocator.Views[iArray], Allocator.Counts[iArray]);
-
-	::gpk::viewWrite(::gpk::view_array<const ::ubk::URL_SCHEME>{Scheme.begin(), Scheme.size()}, output);
-	output.append(::gpk::view_const_byte{(const byte_t*)Authority	.begin(), Scheme.size() * sizeof(_tIndex)});
-	output.append(::gpk::view_const_byte{(const byte_t*)Path		.begin(), Scheme.size() * sizeof(_tIndex)});
-	output.append(::gpk::view_const_byte{(const byte_t*)Query		.begin(), Scheme.size() * sizeof(_tIndex)});
-	output.append(::gpk::view_const_byte{(const byte_t*)Fragment	.begin(), Scheme.size() * sizeof(_tIndex)});
 	return 0;
 }
 
@@ -221,38 +265,6 @@
 		offsetDataPath														+= sizeof(_tIndex);
 		offsetDataQuery														+= sizeof(_tIndex);
 		offsetDataFragment													+= sizeof(_tIndex);
-	}
-	return 0;
-}
-
-		::gpk::error_t												ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		{
-	const ::ubk::URL_SCHEME													scheme								= Scheme	[index];
-	const int32_t															indexViewAuthority					= Authority	[index];
-	if(::ubk::URL_SCHEME_default != scheme) {
-		url.append(::gpk::get_value_label(scheme));
-		url.push_back(':');
-		if(-1 != indexViewAuthority) {
-			url.push_back('/');
-			url.push_back('/');
-		}
-	}
-	if(-1 != indexViewAuthority)
-		gpk_necall(url.append(Allocator.Views[indexViewAuthority], Allocator.Counts[indexViewAuthority]), "%s", "Out of memory?");
-	const int32_t															indexViewPath						= Path		[index];
-	const int32_t															indexViewQuery						= Query		[index];
-	const int32_t															indexViewFragment					= Fragment	[index];
-	if(-1 != indexViewPath || -1 != indexViewQuery || -1 != indexViewFragment)
-		gpk_necall(url.push_back('/'), "%s", "Out of memory?");
-	if(-1 != indexViewPath) {
-		gpk_necall(url.append(Allocator.Views[indexViewPath], Allocator.Counts[indexViewPath]), "%s", "Out of memory?");
-	}
-	if(-1 != indexViewQuery) {
-		gpk_necall(url.push_back('?'), "%s", "Out of memory?");
-		gpk_necall(url.append(Allocator.Views[indexViewQuery], Allocator.Counts[indexViewQuery]), "%s", "Out of memory?");
-	}
-	if(-1 != indexViewFragment) {
-		gpk_necall(url.push_back('#'), "%s", "Out of memory?");
-		gpk_necall(url.append(Allocator.Views[indexViewFragment], Allocator.Counts[indexViewFragment]), "%s", "Out of memory?");
 	}
 	return 0;
 }
