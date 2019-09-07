@@ -37,6 +37,10 @@
 
 		int64_t														ubk::SDomainer::GetIdEMail			(const ::gpk::view_const_char & email)	{
 	(void)email;
+	for(uint32_t iBlock = 0; iBlock < Email.Block.size(); ++iBlock) {
+		const ::ubk::SSMTPMapBlock											& block								= Email.Block[iBlock];
+		(void)block;
+	}
 	return 0;
 }
 
