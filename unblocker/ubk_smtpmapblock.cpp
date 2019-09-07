@@ -1,18 +1,6 @@
 #include "ubk_domainer.h"
 #include "gpk_find.h"
 
-::gpk::error_t									ubk::splitEmail						(const ::gpk::view_const_char & textToAdd, ::gpk::view_const_char & username, ::gpk::view_const_char & domain)		{
-	const ::gpk::error_t								arrobaPos							= ::gpk::find('@', textToAdd);
-	if(0 > arrobaPos)
-		username									= textToAdd;
-	else {
-		username									= {textToAdd.begin(), (uint16_t)arrobaPos};
-		const uint32_t									offsetDomain						= arrobaPos + 1;
-		domain										= {textToAdd.begin() + offsetDomain, (uint16_t)(textToAdd.size() - offsetDomain)};
-	}
-	return 0;
-}
-
 ::gpk::error_t									ubk::SSMTPMapBlock::GetEMail		(int32_t index, ::gpk::array_pod<char_t> & email)	const	{
 	ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
 	const int32_t										indexViewDomain						= Domain	[index];
@@ -31,7 +19,7 @@
 	::gpk::error_t										indexToReturn						= -1;
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
-	::ubk::splitEmail(textToAdd, username, domain);
+	::gpk::split<const char_t>('@', textToAdd, username, domain);
 	int32_t												idxUsername							= username	.size() ? Allocator.View(username	.begin(), (uint16_t)username	.size()) : -1;
 	int32_t												idxDomain							= domain	.size() ? Allocator.View(domain		.begin(), (uint16_t)domain		.size()) : -1;
 	gpk_necall(indexToReturn = Username	.push_back(idxUsername)	, "%s", "Out of memory?");

@@ -20,17 +20,8 @@
 		::gpk::view_const_char								remainder							= ::gpk::view_const_char{textToAdd.begin() + nextOffset, textToAdd.size() - nextOffset};
 		if(remainder.size() > 1 && remainder[0] == '/' && remainder[1] == '/') { // Read optional authority component
 			remainder										= ::gpk::view_const_char{remainder.begin() + 2, remainder.size() - 2};
-			if(remainder.size()) {
-				const ::gpk::error_t								posPath								= ::gpk::find('/', remainder);
-				if(0 > posPath) {
-					authority										= {remainder.begin(), (uint32_t)remainder.size()};
-					remainder										= {};
-				}
-				else {
-					authority										= {remainder.begin(), (uint32_t)posPath};
-					remainder										= {remainder.begin() + posPath, remainder.size() - posPath};
-				}
-			}
+			if(remainder.size())
+				::gpk::splitAt<const char_t>('/', remainder, authority, remainder);
 		}
 		if(remainder.size() && remainder[0] == '/') {	// Read Path component
 			remainder										= ::gpk::view_const_char{remainder.begin() + 1, remainder.size() - 1};
@@ -40,37 +31,16 @@
 					path											= {remainder.begin(), (uint32_t)posQuery};
 					remainder										= ::gpk::view_const_char{remainder.begin() + posQuery, remainder.size() - posQuery};
 				}
-				else { // No QueryString found. Read until the end unless fragment is found.
-					const ::gpk::error_t								posFragment							= ::gpk::find('#', remainder);
-					if(0 > posFragment) { // Read until the end unless fragment is found.
-						path											= remainder;
-						remainder										= {};
-					}
-					else {
-						path											= {remainder.begin(), (uint32_t)posFragment};
-						remainder										= ::gpk::view_const_char{remainder.begin() + posFragment, remainder.size() - posFragment};
-					}
-				}
+				else // No QueryString found. Read until the end unless fragment is found.
+					::gpk::splitAt<const char_t>('#', remainder, path, remainder);
 			}
 			if(remainder.size() && remainder[0] == '?') {	// Read optional Query component
 				remainder										= ::gpk::view_const_char{remainder.begin() + 1, remainder.size() - 1};
-				if(remainder.size()) {
-					const ::gpk::error_t								posFragment						= ::gpk::find('#', remainder);
-					if(0 > posFragment) { // Read until the end unless fragment is found.
-						query											= remainder;
-						remainder										= {};
-					}
-					else {
-						query											= {remainder.begin(), (uint32_t)posFragment};
-						remainder										= ::gpk::view_const_char{remainder.begin() + posFragment, remainder.size() - posFragment};
-					}
-				}
-			}
-			if(remainder.size() && remainder[0] == '#') {	// Read optional fragment component
-				remainder										= ::gpk::view_const_char{remainder.begin() + 1, remainder.size() - 1};
 				if(remainder.size())
-					fragment										= remainder;
+					::gpk::splitAt<const char_t>('#', remainder, query, remainder);
 			}
+			if(remainder.size() && remainder[0] == '#') // Read optional fragment component
+				fragment										= ::gpk::view_const_char{remainder.begin() + 1, remainder.size() - 1};
 		}
 	}
 	return 0;
