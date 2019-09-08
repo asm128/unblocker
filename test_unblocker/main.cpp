@@ -3,6 +3,10 @@
 int testSMTPMapBlock() {
 	::ubk::SSMTPMapBlock				smtpOrigin;
 	::ubk::SSMTPMapBlock				smtpCopy;
+	::gpk::SJSONFile					domainerConfig;
+	::gpk::jsonFileRead(domainerConfig, "unblocker.json");
+
+
 	{
 		const ::gpk::view_const_string		strings	[]	=
 			{"prueba0@prueba.com"
@@ -13,10 +17,10 @@ int testSMTPMapBlock() {
 			};
 		::gpk::array_pod<char_t>			file;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
-			const int32_t						indexOfMap			= smtpOrigin.AddSMTPMap(strings[iString]);
+			const int32_t						indexOfMap			= smtpOrigin.AddMap(strings[iString]);
 			ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
-			ce_if(smtpOrigin.GetEMail(indexOfMap, stored), "%s", "Test failed!");
+			ce_if(smtpOrigin.GetMap(indexOfMap, stored), "%s", "Test failed!");
 			const uint32_t						idStored			= smtpOrigin.GetMapId(stored);
 			ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
@@ -57,10 +61,10 @@ int testURLMapBlock() {
 			};
 		::gpk::array_pod<char_t>			file;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
-			const int32_t						indexOfMap			= smtpOrigin.AddURLMap(strings[iString]);
+			const int32_t						indexOfMap			= smtpOrigin.AddMap(strings[iString]);
 			ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
-			ce_if(smtpOrigin.GetURL(indexOfMap, stored), "%s", "Test failed!");
+			ce_if(smtpOrigin.GetMap(indexOfMap, stored), "%s", "Test failed!");
 			int32_t								idStored				= smtpOrigin.GetMapId(stored);
 			ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
@@ -111,6 +115,16 @@ int main() {
 	gerror_if(errored(testURLMapBlock()), "%s", "Error!");
 
 	::ubk::SDomainer	domainer;
+	{
+		const ::gpk::view_const_string		strings	[]	=
+			{"prueba0@prueba.com"
+			,"prueba1@prueba.com"
+			,"prueba2@hotmail.com"
+			,"prueba0@gmail.com"
+			,"prueba0@prueba.com"
+			};
+		domainer.AddEMail(strings[0]);
+	}
 	//::gpk::SRecordMap		indexMap;
 	//::gpk::blockMapSave(file, indexMap, smtpOrigin, ::gpk::view_const_string{"email"}, {});
 	return 0;

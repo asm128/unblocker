@@ -33,9 +33,9 @@ namespace ubk
 						::gpk::error_t								Save						(::gpk::array_pod<byte_t> & output)					const;
 						::gpk::error_t								Load						(const ::gpk::view_const_byte & input);
 
-						::gpk::error_t								AddURLMap					(const ::gpk::view_const_char & textToAdd);
+						::gpk::error_t								AddMap						(const ::gpk::view_const_char & textToAdd);
 						::gpk::error_t								GetMapId					(const ::gpk::view_const_char & textToAdd)			const;
-						::gpk::error_t								GetURL						(int32_t index, ::gpk::array_pod<char_t> & url)		const;
+						::gpk::error_t								GetMap						(int32_t index, ::gpk::array_pod<char_t> & url)		const;
 
 		inline			::gpk::error_t								GetAuthority				(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Authority	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline			::gpk::error_t								GetPath						(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Path		[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
@@ -53,29 +53,31 @@ namespace ubk
 						::gpk::error_t								Save						(::gpk::array_pod<byte_t> & output)					const;
 						::gpk::error_t								Load						(const ::gpk::view_const_byte & input);
 
-						::gpk::error_t								AddSMTPMap					(const ::gpk::view_const_char & textToAdd);
+						::gpk::error_t								AddMap						(const ::gpk::view_const_char & textToAdd);
 						::gpk::error_t								GetMapId					(const ::gpk::view_const_char & textToAdd)			const;
-						::gpk::error_t								GetEMail					(int32_t index, ::gpk::array_pod<char_t> & email)	const;
+						::gpk::error_t								GetMap						(int32_t index, ::gpk::array_pod<char_t> & email)	const;
+
 		inline			::gpk::error_t								GetDomain					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Domain		[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline			::gpk::error_t								GetUsername					(int32_t index, ::gpk::view_const_char & output)	const	{ const int32_t viewIndex = Username	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 	};
 
 	struct SDomainer {
-						::gpk::SMapBlock<::ubk::SSMTPMapBlock>		Email;
-						::gpk::SMapBlock<::ubk::SURLMapBlock>		URL;
+						::gpk::SMapTable<::ubk::SSMTPMapBlock>		Email;
+						::gpk::SMapTable<::ubk::SURLMapBlock>		URL;
 
 						::gpk::view_const_string					DBPath;
-						int64_t										AddEMail					(const ::gpk::view_const_char & email);
-						int64_t										AddURL						(const ::gpk::view_const_char & url);
-						::gpk::error_t								GetEMail					(const uint64_t id, ::gpk::array_pod<char_t> & email)	;
-						::gpk::error_t								GetURL						(const uint64_t id, ::gpk::array_pod<char_t> & url)		;
 
-		inline			int64_t										GetIdEMail					(const ::gpk::view_const_char & email)	{ return ::gpk::getMapId(Email	, DBPath, email);	}
-		inline			int64_t										GetIdURL					(const ::gpk::view_const_char & url)	{ return ::gpk::getMapId(URL	, DBPath, url);		}
+		inline			::gpk::error_t								GetEMail					(const uint64_t idRecord, ::gpk::array_pod<char_t> & email	)		{ return ::gpk::mapTableGetMap(Email, idRecord, DBPath, email); }
+		inline			::gpk::error_t								GetURL						(const uint64_t idRecord, ::gpk::array_pod<char_t> & url	)		{ return ::gpk::mapTableGetMap(Email, idRecord, DBPath, url); }
+
+		inline			int64_t										GetIdEMail					(const ::gpk::view_const_char & email)	{ return ::gpk::mapTableMapId(Email	, DBPath, email	);	}
+		inline			int64_t										GetIdURL					(const ::gpk::view_const_char & url)	{ return ::gpk::mapTableMapId(URL	, DBPath, url	);	}
+		inline			int64_t										AddEMail					(const ::gpk::view_const_char & email)	{ return ::gpk::mapTableMapAdd(Email, DBPath, email	);	}
+		inline			int64_t										AddURL						(const ::gpk::view_const_char & url)	{ return ::gpk::mapTableMapAdd(URL	, DBPath, url	);	}
 	};
 
-	static inline	::gpk::error_t								splitEmail							(const ::gpk::view_const_char & email, ::gpk::view_const_char & username, ::gpk::view_const_char & domain)		{ return ::gpk::split<const char_t>('@', email, username, domain); }
-					::gpk::error_t								splitURL							(const ::gpk::view_const_char & textToAdd, ::ubk::URL_SCHEME & scheme, ::gpk::view_const_char & authority, ::gpk::view_const_char & path, ::gpk::view_const_char & query, ::gpk::view_const_char & fragment);
+	static inline	::gpk::error_t								splitEmail					(const ::gpk::view_const_char & email, ::gpk::view_const_char & username, ::gpk::view_const_char & domain)		{ return ::gpk::split<const char_t>('@', email, username, domain); }
+					::gpk::error_t								splitURL					(const ::gpk::view_const_char & textToAdd, ::ubk::URL_SCHEME & scheme, ::gpk::view_const_char & authority, ::gpk::view_const_char & path, ::gpk::view_const_char & query, ::gpk::view_const_char & fragment);
 } // namespace
 
 #endif // DOMAINER_H_2983749823748293

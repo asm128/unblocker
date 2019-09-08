@@ -50,5 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="unblocker.json" />
+    <None Include="unblocker.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

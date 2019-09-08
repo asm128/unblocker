@@ -46,7 +46,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::AddURLMap		(const ::gpk::view_const_char & textToAdd)		{
+::gpk::error_t									ubk::SURLMapBlock::AddMap			(const ::gpk::view_const_char & textToAdd)		{
 	::gpk::error_t										indexToReturn						= -1;
 
 	::gpk::view_const_char								parts	[4]							= {};
@@ -65,7 +65,7 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::GetURL			(int32_t index, ::gpk::array_pod<char_t> & url)		const	{
+::gpk::error_t									ubk::SURLMapBlock::GetMap			(int32_t index, ::gpk::array_pod<char_t> & url)		const	{
 	const ::ubk::URL_SCHEME								scheme								= Scheme	[index];
 	const int32_t										indexViewAuthority					= Authority	[index];
 	if(::ubk::URL_SCHEME_default != scheme) {
