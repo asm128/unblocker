@@ -46,7 +46,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::AddMap			(const ::gpk::view_const_char & textToAdd)		{
+::gpk::error_t									ubk::SMapBlockURL::AddMap			(const ::gpk::view_const_char & textToAdd)		{
 	::gpk::error_t										indexToReturn						= -1;
 
 	::gpk::view_const_char								parts	[4]							= {};
@@ -65,7 +65,7 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::GetMap			(int32_t index, ::gpk::array_pod<char_t> & url)		const	{
+::gpk::error_t									ubk::SMapBlockURL::GetMap			(int32_t index, ::gpk::array_pod<char_t> & url)		const	{
 	const ::ubk::URL_SCHEME								scheme								= Scheme	[index];
 	const int32_t										indexViewAuthority					= Authority	[index];
 	if(::ubk::URL_SCHEME_default != scheme) {
@@ -97,7 +97,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::Save				(::gpk::array_pod<byte_t> & output)		const		{
+::gpk::error_t									ubk::SMapBlockURL::Save				(::gpk::array_pod<byte_t> & output)		const		{
 	gpk_necall(::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output), "%s", "Out of memory?");
 	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
 		gpk_necall(output.append(Allocator.Views[iArray], Allocator.Counts[iArray]), "%s", "Out of memory?");
@@ -110,7 +110,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::Load				(const ::gpk::view_const_byte & input)				{
+::gpk::error_t									ubk::SMapBlockURL::Load				(const ::gpk::view_const_byte & input)				{
 	if(0 == input.size())
 		return 0;
 
@@ -173,7 +173,7 @@ template<typename _tElement, size_t _blockSize>
 	return -1;
 }
 
-::gpk::error_t									ubk::SURLMapBlock::GetMapId			(const ::gpk::view_const_char & textToAdd) 	const	{
+::gpk::error_t									ubk::SMapBlockURL::GetMapId			(const ::gpk::view_const_char & textToAdd) 	const	{
 	::ubk::URL_SCHEME									scheme								= ::ubk::URL_SCHEME_default;
 	::gpk::view_const_char								parts	[4]							= {};
 	const ::gpk::view_array<const ::gpk::SInt24>		ids		[4]							= {Authority, Path, Query, Fragment};

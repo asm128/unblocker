@@ -1,8 +1,9 @@
 #include "ubk_domainer.h"
 
+
 int testSMTPMapBlock() {
-	::ubk::SSMTPMapBlock				smtpOrigin;
-	::ubk::SSMTPMapBlock				smtpCopy;
+	::ubk::SMapBlockEMail				smtpOrigin;
+	::ubk::SMapBlockEMail				smtpCopy;
 	::gpk::SJSONFile					domainerConfig;
 	::gpk::jsonFileRead(domainerConfig, "unblocker.json");
 
@@ -48,8 +49,8 @@ int testSMTPMapBlock() {
 }
 
 int testURLMapBlock() {
-	::ubk::SURLMapBlock						smtpOrigin;
-	::ubk::SURLMapBlock						smtpCopy;
+	::ubk::SMapBlockURL						smtpOrigin;
+	::ubk::SMapBlockURL						smtpCopy;
 	{
 		const ::gpk::view_const_string		strings	[]	=
 			{ "https://prueba0@gmail.com/ruta?querystring#fragmento"

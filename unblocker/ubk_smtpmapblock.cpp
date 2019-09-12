@@ -1,7 +1,7 @@
 #include "ubk_domainer.h"
 #include "gpk_find.h"
 
-::gpk::error_t									ubk::SSMTPMapBlock::GetMap			(int32_t index, ::gpk::array_pod<char_t> & email)	const	{
+::gpk::error_t									ubk::SMapBlockEMail::GetMap			(int32_t index, ::gpk::array_pod<char_t> & email)	const	{
 	ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
 	const int32_t										indexViewDomain						= Domain	[index];
 	const int32_t										indexViewUsername					= Username	[index];
@@ -15,7 +15,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::AddMap			(const ::gpk::view_const_char & textToAdd)		{
+::gpk::error_t									ubk::SMapBlockEMail::AddMap			(const ::gpk::view_const_char & textToAdd)		{
 	::gpk::error_t										indexToReturn						= -1;
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
@@ -27,7 +27,7 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::GetMapId	(const ::gpk::view_const_char & textToAdd) 	const	{
+::gpk::error_t									ubk::SMapBlockEMail::GetMapId	(const ::gpk::view_const_char & textToAdd) 	const	{
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
 	::ubk::splitEmail(textToAdd, username, domain);
@@ -52,7 +52,7 @@
 	return -1;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::Save			(::gpk::array_pod<byte_t> & output)		const		{
+::gpk::error_t									ubk::SMapBlockEMail::Save			(::gpk::array_pod<byte_t> & output)		const		{
 	gpk_necall(::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output), "%s", "Out of memory?");
 	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
 		gpk_necall(output.append(Allocator.Views[iArray], Allocator.Counts[iArray]), "%s", "Out of memory?");
@@ -62,7 +62,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SSMTPMapBlock::Load			(const ::gpk::view_const_byte & input)				{
+::gpk::error_t									ubk::SMapBlockEMail::Load			(const ::gpk::view_const_byte & input)				{
 	if(0 == input.size())
 		return 0;
 

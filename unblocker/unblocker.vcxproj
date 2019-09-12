@@ -188,14 +188,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ubk_domainer.cpp" />
+    <ClCompile Include="ubk_mapblockpath.cpp" />
     <ClCompile Include="ubk_smtpmapblock.cpp" />
     <ClCompile Include="ubk_urlmapblock.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ubk_addressbook.h" />
     <ClInclude Include="ubk_business.h" />
     <ClInclude Include="ubk_demographer.h" />
     <ClInclude Include="ubk_domainer.h" />
     <ClInclude Include="ubk_infinireply.h" />
+    <ClInclude Include="ubk_people.h" />
     <ClInclude Include="ubk_session.h" />
     <ClInclude Include="unblocker.h" />
     <ClInclude Include="ubk_vocabulary.h" />

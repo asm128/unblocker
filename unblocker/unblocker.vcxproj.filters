@@ -24,6 +24,9 @@
     <ClCompile Include="ubk_domainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ubk_mapblockpath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="unblocker.h">
@@ -45,6 +48,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ubk_vocabulary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ubk_addressbook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ubk_people.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
