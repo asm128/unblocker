@@ -43,6 +43,11 @@ int testSMTPMapBlock() {
 			const ::gpk::view_const_char		strCopyUsername		= {smtpCopy		.Allocator.Views[idxCopyUsername	], smtpCopy		.Allocator.Counts[idxCopyUsername	]};
 			ce_if(strCopyDomain		!= strOriginDomain		, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginDomain	).begin(), ::gpk::toString(strCopyDomain	).begin());
 			ce_if(strCopyUsername	!= strOriginUsername	, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginUsername).begin(), ::gpk::toString(strCopyUsername	).begin());
+			::gpk::array_pod<char_t>			stored;
+			::gpk::array_pod<char_t>			loaded;
+			ce_if(smtpOrigin.GetMap(iDomain, stored), "%s", "Test failed!");
+			ce_if(smtpCopy	.GetMap(iDomain, loaded), "%s", "Test failed!");
+			ce_if(loaded != stored, "%s", "Test failed!");
 		}
 	}
 	return 0;
@@ -106,6 +111,11 @@ int testURLMapBlock() {
 			ce_if(strCopyPath		!= strOriginPath		, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginPath		).begin(), ::gpk::toString(strCopyPath		).begin());
 			ce_if(strCopyQuery		!= strOriginQuery		, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginQuery		).begin(), ::gpk::toString(strCopyQuery		).begin());
 			ce_if(strCopyFragment	!= strOriginFragment	, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginFragment	).begin(), ::gpk::toString(strCopyFragment	).begin());
+			::gpk::array_pod<char_t>			stored;
+			::gpk::array_pod<char_t>			loaded;
+			ce_if(smtpOrigin.GetMap(iDomain, stored), "%s", "Test failed!");
+			ce_if(smtpCopy	.GetMap(iDomain, loaded), "%s", "Test failed!");
+			ce_if(loaded != stored, "%s", "Test failed!");
 		}
 	}
 	return 0;

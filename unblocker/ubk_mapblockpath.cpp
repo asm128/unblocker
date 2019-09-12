@@ -28,7 +28,7 @@ static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0x
 	return -1;
 }
 
-						::gpk::error_t			ubk::SMapBlockPath::GetMapId					(const ::gpk::view_const_char & textToAdd)						const	{
+		::gpk::error_t							ubk::SMapBlockPath::GetMapId					(const ::gpk::view_const_char & textToAdd)						const	{
 	::gpk::array_obj<::gpk::view_const_char>			parts;
 	::gpk::split(textToAdd, '/', parts);
 	const uint32_t										countParts										= parts.size();
@@ -43,7 +43,7 @@ static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0x
 	return -1;
 }
 
-						::gpk::error_t			ubk::SMapBlockPath::GetMap						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
+		::gpk::error_t							ubk::SMapBlockPath::GetMap						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
 	::gpk::view_array<const ::gpk::SInt24>				mapParts										= {AllocatorMaps.Views[index], AllocatorMaps.Counts[index]};
 	const uint32_t										last											= (mapParts.size() - 1);
 	for(uint32_t iPart = 0; iPart < mapParts.size(); ++iPart) {
