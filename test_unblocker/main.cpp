@@ -1,6 +1,48 @@
 #include "ubk_domainer.h"
 
 
+int testSMapBlockPath() {
+	::ubk::SMapBlockPath				smtpOrigin;
+	::ubk::SMapBlockPath				smtpCopy;
+	::gpk::SJSONFile					domainerConfig;
+	::gpk::jsonFileRead(domainerConfig, "unblocker.json");
+	{
+		const ::gpk::view_const_string		strings	[]	=
+			{"prueba0/prueba/com"
+			,"prueba1/prueba.com/prueba/prueba0"
+			,"prueba2/hotmail.com"
+			,"prueba0/gmail.com"
+			,"prueba0/prueba/com"
+			,"prueba0/prueba/com"
+			,"//"
+			,"/"
+			,"/prueba0/prueba"
+			};
+		::gpk::array_pod<char_t>			file;
+		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
+			const int32_t						indexOfMap			= smtpOrigin.AddMap(strings[iString]);
+			//ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
+			::gpk::array_pod<char_t>			stored;
+			ce_if(smtpOrigin.GetMap(indexOfMap, stored), "%s", "Test failed!");
+			const uint32_t						idStored			= smtpOrigin.GetMapId(stored);
+			//ce_if((int32_t)iString != idStored, "%s", "Test failed!");
+			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
+		}
+		ree_if(smtpOrigin	.Save(file), "%s", "Error!");
+		ree_if(smtpCopy		.Load(file), "%s", "Error!");
+	}
+	{
+		for(uint32_t iDomain = 0; iDomain < smtpCopy.AllocatorMaps.Counts.size(); ++iDomain) {
+			::gpk::array_pod<char_t>			stored;
+			::gpk::array_pod<char_t>			loaded;
+			ce_if(smtpOrigin.GetMap(iDomain, stored), "%s", "Test failed!");
+			ce_if(smtpCopy	.GetMap(iDomain, loaded), "%s", "Test failed!");
+			ce_if(loaded != stored, "%s", "Test failed!");
+		}
+	}
+	return 0;
+}
+
 int testSMTPMapBlock() {
 	::ubk::SMapBlockEMail				smtpOrigin;
 	::ubk::SMapBlockEMail				smtpCopy;
@@ -122,10 +164,14 @@ int testURLMapBlock() {
 }
 
 int main() {
+	gerror_if(errored(testSMapBlockPath()), "%s", "Error!");
 	gerror_if(errored(testSMTPMapBlock()), "%s", "Error!");
 	gerror_if(errored(testURLMapBlock()), "%s", "Error!");
 
 	::ubk::SDomainer	domainer;
+	domainer.Email	.BlockConfig.Containers	= 256;
+	domainer.URL	.BlockConfig.Containers	= 256;
+	domainer.URL	.BlockConfig.Containers	= 256;
 	{
 		const ::gpk::view_const_string		strings	[]	=
 			{"prueba0@prueba.com"

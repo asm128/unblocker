@@ -12,12 +12,15 @@
 }
 
 template<typename _tIndex>
-static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0xFFFFU> allocatorChars, ::gpk::view_array<const _tIndex> viewMap, ::gpk::view_array<const ::gpk::view_const_char> parts, uint32_t iPart)						{
+static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0xFFFFU> allocatorChars, ::gpk::view_array<const _tIndex> viewMap, ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart)						{
+	if(iPart == viewMap.size())
+		return iPart;
 	const _tIndex										mapPart											= viewMap[iPart];
 	const ::gpk::view_const_char						partInput										= parts[iPart];
-	if(-1 == mapPart && 0 == partInput.size())
+	if(-1 == mapPart && 0 == partInput.size()) {
 		if(0 <= ::partCompare(allocatorChars, viewMap, parts, iPart + 1))
 			return iPart;
+	}
 	else {
 		const ::gpk::view_const_char						partMapped										= {allocatorChars.Views[mapPart], allocatorChars.Counts[mapPart]};
 		if(0 == memcmp(partInput.begin(), partMapped.begin(), partMapped.size())) {
@@ -46,11 +49,16 @@ static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0x
 		::gpk::error_t							ubk::SMapBlockPath::GetMap						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
 	::gpk::view_array<const ::gpk::SInt24>				mapParts										= {AllocatorMaps.Views[index], AllocatorMaps.Counts[index]};
 	const uint32_t										last											= (mapParts.size() - 1);
-	for(uint32_t iPart = 0; iPart < mapParts.size(); ++iPart) {
-		const _tIndex										indexPart										= mapParts[iPart];
-		path.append(::gpk::view_const_char{AllocatorChars.Views[indexPart], AllocatorChars.Counts[indexPart]});
-		if(iPart < last)
-			path.push_back('/');
+	if(1 == mapParts.size() && -1 == mapParts[0])
+		path.push_back('/');
+	else {
+		for(uint32_t iPart = 0; iPart < mapParts.size(); ++iPart) {
+			const _tIndex										indexPart										= mapParts[iPart];
+			if(0 <= indexPart)
+				path.append(::gpk::view_const_char{AllocatorChars.Views[indexPart], AllocatorChars.Counts[indexPart]});
+			if(iPart < last)
+				path.push_back('/');
+		}
 	}
 	return 0;
 }
