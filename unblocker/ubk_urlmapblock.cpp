@@ -96,60 +96,6 @@
 	}
 	return 0;
 }
-
-::gpk::error_t									ubk::SMapBlockURL::Save				(::gpk::array_pod<byte_t> & output)		const		{
-	gpk_necall(::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output), "%s", "Out of memory?");
-	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
-		gpk_necall(output.append(Allocator.Views[iArray], Allocator.Counts[iArray]), "%s", "Out of memory?");
-
-	gpk_necall(::gpk::viewWrite(::gpk::view_array<const ::ubk::URL_SCHEME>{Scheme.begin(), Scheme.size()}, output)		, "%s", "Out of memory?");
-	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Authority.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
-	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Path		.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
-	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Query	.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
-	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Fragment	.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
-	return 0;
-}
-
-::gpk::error_t									ubk::SMapBlockURL::Load				(const ::gpk::view_const_byte & input)				{
-	if(0 == input.size())
-		return 0;
-
-	const uint32_t										countArrays							= *(const uint32_t*)input.begin();
-	uint32_t											offsetArraySize						= sizeof(uint32_t);
-	typedef												uint16_t							_tViewLen;
-	uint32_t											offsetArrayData						= offsetArraySize + sizeof(_tViewLen) * countArrays;
-	for(uint32_t iArray = 0; iArray < countArrays; ++iArray) {
-		const _tViewLen										currentArraySize					= *(_tViewLen*)&input[offsetArraySize];
-		Allocator.View(&input[offsetArrayData], currentArraySize);
-		offsetArrayData									+= currentArraySize;
-		offsetArraySize									+= sizeof(_tViewLen);
-	}
-	const uint32_t										countMaps							= *(const uint32_t*)&input[offsetArrayData];
-	uint32_t											offsetDataScheme					= offsetArrayData		+ sizeof(uint32_t);
-	uint32_t											offsetDataAuthority					= offsetDataScheme		+ sizeof(::ubk::URL_SCHEME) * countMaps;
-	uint32_t											offsetDataPath						= offsetDataAuthority	+ sizeof(_tIndex)			* countMaps;
-	uint32_t											offsetDataQuery						= offsetDataPath		+ sizeof(_tIndex)			* countMaps;
-	uint32_t											offsetDataFragment					= offsetDataQuery		+ sizeof(_tIndex)			* countMaps;
-	gpk_necall(Scheme	.resize(countMaps), "%s", "Out of memory?");
-	gpk_necall(Authority.resize(countMaps), "%s", "Out of memory?");
-	gpk_necall(Path		.resize(countMaps), "%s", "Out of memory?");
-	gpk_necall(Query	.resize(countMaps), "%s", "Out of memory?");
-	gpk_necall(Fragment	.resize(countMaps), "%s", "Out of memory?");
-	for(uint32_t iMap = 0; iMap < countMaps; ++iMap) {
-		Scheme		[iMap]								= *(::ubk::URL_SCHEME*)&input[offsetDataScheme];
-		Authority	[iMap]								= *(const _tIndex*)&input[offsetDataAuthority	];
-		Path		[iMap]								= *(const _tIndex*)&input[offsetDataPath		];
-		Query		[iMap]								= *(const _tIndex*)&input[offsetDataQuery		];
-		Fragment	[iMap]								= *(const _tIndex*)&input[offsetDataFragment	];
-		offsetDataScheme								+= sizeof(::ubk::URL_SCHEME);
-		offsetDataAuthority								+= sizeof(_tIndex);
-		offsetDataPath									+= sizeof(_tIndex);
-		offsetDataQuery									+= sizeof(_tIndex);
-		offsetDataFragment								+= sizeof(_tIndex);
-	}
-	return 0;
-}
-
 template<typename _tElement, size_t _blockSize>
 ::gpk::error_t									recursivelyCompare					(uint32_t & iAddress, const ::gpk::CViewManager<_tElement, _blockSize> & allocator, const ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart, const ::gpk::view_array<const ::gpk::view_array<const ::gpk::SInt24>> & idLists, const uint32_t idParent, uint32_t countAddresses) {
 	const ::gpk::view_const_char						currentPart							= parts[iPart];
@@ -199,4 +145,46 @@ template<typename _tElement, size_t _blockSize>
 		}
 	}
 	return -1;
+}
+
+::gpk::error_t									ubk::SMapBlockURL::Save				(::gpk::array_pod<byte_t> & output)		const		{
+	gpk_necall(::gpk::viewManagerSave(Allocator, output), "%s", "Unknown error!");
+	gpk_necall(::gpk::viewWrite(::gpk::view_array<const ::ubk::URL_SCHEME>{Scheme.begin(), Scheme.size()}, output)		, "%s", "Out of memory?");
+	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Authority.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
+	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Path		.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
+	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Query	.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
+	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Fragment	.begin(), Scheme.size() * sizeof(_tIndex)})	, "%s", "Out of memory?");
+	return 0;
+}
+
+::gpk::error_t									ubk::SMapBlockURL::Load				(const ::gpk::view_const_byte & input)				{
+	if(0 == input.size())
+		return 0;
+
+	const int32_t										offsetArrayData						= ::gpk::viewManagerLoad(Allocator, input);
+	gpk_necall(offsetArrayData, "Failed to load strings: %s.", "Unknown error!");
+	const uint32_t										countMaps							= *(const uint32_t*)&input[(uint32_t)offsetArrayData];
+	uint32_t											offsetDataScheme					= offsetArrayData		+ sizeof(uint32_t);
+	uint32_t											offsetDataAuthority					= offsetDataScheme		+ sizeof(::ubk::URL_SCHEME) * countMaps;
+	uint32_t											offsetDataPath						= offsetDataAuthority	+ sizeof(_tIndex)			* countMaps;
+	uint32_t											offsetDataQuery						= offsetDataPath		+ sizeof(_tIndex)			* countMaps;
+	uint32_t											offsetDataFragment					= offsetDataQuery		+ sizeof(_tIndex)			* countMaps;
+	gpk_necall(Scheme	.resize(countMaps), "%s", "Out of memory?");
+	gpk_necall(Authority.resize(countMaps), "%s", "Out of memory?");
+	gpk_necall(Path		.resize(countMaps), "%s", "Out of memory?");
+	gpk_necall(Query	.resize(countMaps), "%s", "Out of memory?");
+	gpk_necall(Fragment	.resize(countMaps), "%s", "Out of memory?");
+	for(uint32_t iMap = 0; iMap < countMaps; ++iMap) {
+		Scheme		[iMap]								= *(::ubk::URL_SCHEME*)&input[offsetDataScheme];
+		Authority	[iMap]								= *(const _tIndex*)&input[offsetDataAuthority	];
+		Path		[iMap]								= *(const _tIndex*)&input[offsetDataPath		];
+		Query		[iMap]								= *(const _tIndex*)&input[offsetDataQuery		];
+		Fragment	[iMap]								= *(const _tIndex*)&input[offsetDataFragment	];
+		offsetDataScheme								+= sizeof(::ubk::URL_SCHEME);
+		offsetDataAuthority								+= sizeof(_tIndex);
+		offsetDataPath									+= sizeof(_tIndex);
+		offsetDataQuery									+= sizeof(_tIndex);
+		offsetDataFragment								+= sizeof(_tIndex);
+	}
+	return 0;
 }

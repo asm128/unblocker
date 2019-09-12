@@ -53,10 +53,7 @@
 }
 
 ::gpk::error_t									ubk::SMapBlockEMail::Save			(::gpk::array_pod<byte_t> & output)		const		{
-	gpk_necall(::gpk::viewWrite(::gpk::view_const_uint16{Allocator.Counts.begin(), Allocator.Counts.size()}, output), "%s", "Out of memory?");
-	for(uint32_t iArray = 0; iArray < Allocator.Counts.size(); ++iArray)
-		gpk_necall(output.append(Allocator.Views[iArray], Allocator.Counts[iArray]), "%s", "Out of memory?");
-
+	gpk_necall(::gpk::viewManagerSave(Allocator, output), "%s", "Unknown error!");
 	gpk_necall(::gpk::viewWrite(::gpk::view_array<const _tIndex>{Domain.begin(), Domain.size()}, output), "%s", "Out of memory?");
 	gpk_necall(output.append(::gpk::view_const_byte{(const byte_t*)Username.begin(), Domain.size() * sizeof(_tIndex)}), "%s", "Out of memory?");
 	return 0;
@@ -65,17 +62,8 @@
 ::gpk::error_t									ubk::SMapBlockEMail::Load			(const ::gpk::view_const_byte & input)				{
 	if(0 == input.size())
 		return 0;
-
-	const uint32_t										countArrays									= *(const uint32_t*)input.begin();
-	uint32_t											offsetArraySize								= sizeof(uint32_t);
-	typedef												uint16_t									_tViewLen;
-	uint32_t											offsetArrayData								= offsetArraySize + sizeof(_tViewLen) * countArrays;
-	for(uint32_t iArray = 0; iArray < countArrays; ++iArray) {
-		const _tViewLen										currentArraySize							= *(_tViewLen*)&input[offsetArraySize];
-		Allocator.View(&input[offsetArrayData], currentArraySize);
-		offsetArrayData									+= currentArraySize;
-		offsetArraySize									+= sizeof(_tViewLen);
-	}
+	const int32_t										offsetArrayData						= ::gpk::viewManagerLoad(Allocator, input);
+	gpk_necall(offsetArrayData, "Failed to load strings: %s.", "Unknown error!");
 	const uint32_t										countMaps									= *(const uint32_t*)&input[offsetArrayData];
 	uint32_t											offsetDataDomain							= offsetArrayData	+ sizeof(uint32_t);
 	uint32_t											offsetDataUsername							= offsetDataDomain	+ sizeof(_tIndex) * countMaps;
