@@ -15,16 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ubk_smtpmapblock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ubk_urlmapblock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ubk_domainer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ubk_mapblockpath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ubk_mapblockemail.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ubk_mapblockurl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -189,8 +189,8 @@
   <ItemGroup>
     <ClCompile Include="ubk_domainer.cpp" />
     <ClCompile Include="ubk_mapblockpath.cpp" />
-    <ClCompile Include="ubk_smtpmapblock.cpp" />
-    <ClCompile Include="ubk_urlmapblock.cpp" />
+    <ClCompile Include="ubk_mapblockemail.cpp" />
+    <ClCompile Include="ubk_mapblockurl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ubk_addressbook.h" />

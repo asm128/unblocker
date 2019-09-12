@@ -24,7 +24,6 @@ namespace ubk
 		typedef			::gpk::SInt24										_tIndex;
 						::gpk::CViewManager<char_t, 0xFFFFU>				AllocatorChars				= {};
 						::gpk::CViewManager<_tIndex, 0xFFFFU>				AllocatorMaps				= {};
-						//::gpk::array_obj<::gpk::view_array<::gpk::SInt24>>	Paths						= {};
 
 						::gpk::error_t										Save						(::gpk::array_pod<byte_t> & output)								const;
 						::gpk::error_t										Load						(const ::gpk::view_const_byte & input);

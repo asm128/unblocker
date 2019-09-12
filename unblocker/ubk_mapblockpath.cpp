@@ -3,12 +3,29 @@
 		::gpk::error_t							ubk::SMapBlockPath::AddMap						(const ::gpk::view_const_char & textToAdd)	{
 	::gpk::array_obj<::gpk::view_const_char>			parts;
 	::gpk::split(textToAdd, '/', parts);
-	::gpk::array_pod<::gpk::SInt24>						mapParts;
+	::gpk::array_pod<_tIndex>							mapParts;
 	for(uint32_t iPart = 0, countParts = parts.size(); iPart < countParts; ++iPart) {
 		const ::gpk::view_const_char						& part											= parts[iPart];
 		gpk_necall(mapParts.push_back(part.size() ? AllocatorChars.View(part.begin(), (uint16_t)part.size()) : -1), "%s", "Out of memory?");
 	}
 	return mapParts.size() ? AllocatorMaps.View(mapParts.begin(), (uint16_t)mapParts.size()) : -1;
+}
+
+		::gpk::error_t							ubk::SMapBlockPath::GetMap						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
+	const ::gpk::view_array<const _tIndex>				mapParts										= {AllocatorMaps.Views[index], AllocatorMaps.Counts[index]};
+	const uint32_t										last											= (mapParts.size() - 1);
+	if(1 == mapParts.size() && -1 == mapParts[0])
+		path.push_back('/');
+	else {
+		for(uint32_t iPart = 0; iPart < mapParts.size(); ++iPart) {
+			const _tIndex										indexPart										= mapParts[iPart];
+			if(0 <= indexPart)
+				path.append(::gpk::view_const_char{AllocatorChars.Views[indexPart], AllocatorChars.Counts[indexPart]});
+			if(iPart < last)
+				path.push_back('/');
+		}
+	}
+	return 0;
 }
 
 template<typename _tIndex>
@@ -44,23 +61,6 @@ static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0x
 			return iMap;
 	}
 	return -1;
-}
-
-		::gpk::error_t							ubk::SMapBlockPath::GetMap						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
-	::gpk::view_array<const ::gpk::SInt24>				mapParts										= {AllocatorMaps.Views[index], AllocatorMaps.Counts[index]};
-	const uint32_t										last											= (mapParts.size() - 1);
-	if(1 == mapParts.size() && -1 == mapParts[0])
-		path.push_back('/');
-	else {
-		for(uint32_t iPart = 0; iPart < mapParts.size(); ++iPart) {
-			const _tIndex										indexPart										= mapParts[iPart];
-			if(0 <= indexPart)
-				path.append(::gpk::view_const_char{AllocatorChars.Views[indexPart], AllocatorChars.Counts[indexPart]});
-			if(iPart < last)
-				path.push_back('/');
-		}
-	}
-	return 0;
 }
 
 		::gpk::error_t							ubk::SMapBlockPath::Save					(::gpk::array_pod<byte_t> & output)								const	{
