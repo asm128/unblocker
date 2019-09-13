@@ -11,7 +11,7 @@ namespace ubk
 	typedef			::gpk::SMapBlock											SMapBlockHours;
 	typedef			::gpk::SMapBlock											SMapBlockPhones;
 
-	//struct SMapBlockPhones {
+	//struct SMapBlockPhones	{
 	//					::gpk::CViewManager<byte_t, 1023U*64U>						Allocator					;
 	//
 	//	typedef			::gpk::SInt24												_tIndex;

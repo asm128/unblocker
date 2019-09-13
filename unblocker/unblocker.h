@@ -19,13 +19,13 @@ namespace ubk
 							uint8_t									Remote		: 1;
 	};
 
-	struct SSimpleHour		{
-							int8_t									Minute		;
-							int8_t									Hour		: 5;
-							int8_t									WeekDay		: 3;
+	struct SWeekTime		{
+							uint8_t									Minute		;
+							uint8_t									Hour		: 5;
+							uint8_t									WeekDay		: 3;
 	};
 
-	typedef				::gpk::SRange<::ubk::SSimpleHour>		SOpenHourRange;
+	typedef				::gpk::SRange<::ubk::SWeekTime>		SOpenHourRange;
 
 	struct SPhoneNumber		{
 							char									Number		[28];

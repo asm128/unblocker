@@ -1,15 +1,21 @@
 {	"domainer" : 
-	{	"URLMap": 
+	{	"map_url": 
 		{	"key"			: "12345678901234567890123456789012"
 		,	"containers"	: 255
 		,	"deflate"		: true
-		,	"blocksize"		: 1048576
+		,	"blocksize"		: 65535
 		}
-	,	"SMTPMap":
+	,	"map_email":
 		{	"key"			: "12345678901234567890123456789012"
 		,	"containers"	: 255
 		,	"deflate"		: true
-		,	"blocksize"		: 1048576
+		,	"blocksize"		: 65535
+		}
+	,	"map_path":
+		{	"key"			: "12345678901234567890123456789012"
+		,	"containers"	: 255
+		,	"deflate"		: true
+		,	"blocksize"		: 65535
 		}
 	}
 }

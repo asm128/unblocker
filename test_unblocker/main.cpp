@@ -169,18 +169,23 @@ int main() {
 	gerror_if(errored(testURLMapBlock()), "%s", "Error!");
 
 	::ubk::SDomainer	domainer;
-	domainer.Email	.BlockConfig.Containers	= 256;
-	domainer.URL	.BlockConfig.Containers	= 256;
-	domainer.URL	.BlockConfig.Containers	= 256;
 	{
 		const ::gpk::view_const_string		strings	[]	=
 			{"prueba0@prueba.com"
 			,"prueba1@prueba.com"
 			,"prueba2@hotmail.com"
 			,"prueba0@gmail.com"
-			,"prueba0@prueba.com"
 			};
-		domainer.AddEMail(strings[0]);
+
+		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString)
+			ce_if(errored(domainer.MapAdd(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
+		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString)
+			ce_if(errored(domainer.MapGetId(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
+		::gpk::array_pod<char_t> email;
+		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
+			ce_if(errored(domainer.MapGet(::ubk::DOMAINER_SYSTEM_EMAIL, iString, email)), "Failed to add string: %s.", strings[iString].begin());
+			email.clear();
+		}
 	}
 	//::gpk::SRecordMap		indexMap;
 	//::gpk::blockMapSave(file, indexMap, smtpOrigin, ::gpk::view_const_string{"email"}, {});

@@ -96,8 +96,9 @@
 	}
 	return 0;
 }
-template<typename _tElement, size_t _blockSize>
-::gpk::error_t									recursivelyCompare					(uint32_t & iAddress, const ::gpk::CViewManager<_tElement, _blockSize> & allocator, const ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart, const ::gpk::view_array<const ::gpk::view_array<const ::gpk::SInt24>> & idLists, const uint32_t idParent, uint32_t countAddresses) {
+
+template<typename _tElement>
+::gpk::error_t									recursivelyCompare					(uint32_t & iAddress, const ::gpk::CViewManager<_tElement> & allocator, const ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart, const ::gpk::view_array<const ::gpk::view_array<const ::gpk::SInt24>> & idLists, const uint32_t idParent, uint32_t countAddresses) {
 	const ::gpk::view_const_char						currentPart							= parts[iPart];
 	for(; iAddress < countAddresses; ++iAddress) {
 		if(((int32_t)idParent) != idLists[iPart - 1][iAddress])

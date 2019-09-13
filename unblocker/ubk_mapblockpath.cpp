@@ -29,7 +29,7 @@
 }
 
 template<typename _tIndex>
-static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t, 0xFFFFU> allocatorChars, ::gpk::view_array<const _tIndex> viewMap, ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart)						{
+static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t> allocatorChars, ::gpk::view_array<const _tIndex> viewMap, ::gpk::view_array<const ::gpk::view_const_char> parts, const uint32_t iPart)						{
 	if(iPart == viewMap.size())
 		return iPart;
 	const _tIndex										mapPart											= viewMap[iPart];
