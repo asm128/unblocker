@@ -1,6 +1,6 @@
 #include "ubk_domainer.h"
 
-		::gpk::error_t							ubk::SMapBlockPath::AddMap						(const ::gpk::view_const_char & textToAdd)	{
+		::gpk::error_t							ubk::SMapBlockPath::MapAdd						(const ::gpk::view_const_char & textToAdd)	{
 	::gpk::array_obj<::gpk::view_const_char>			parts;
 	::gpk::split(textToAdd, '/', parts);
 	::gpk::array_pod<_tIndex>							mapParts;
@@ -11,7 +11,7 @@
 	return mapParts.size() ? AllocatorMaps.View(mapParts.begin(), (uint16_t)mapParts.size()) : -1;
 }
 
-		::gpk::error_t							ubk::SMapBlockPath::GetMap						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
+		::gpk::error_t							ubk::SMapBlockPath::MapGet						(int32_t index, ::gpk::array_pod<char_t> & path)				const	{
 	const ::gpk::view_array<const _tIndex>				mapParts										= {AllocatorMaps.Views[index], AllocatorMaps.Counts[index]};
 	const uint32_t										last											= (mapParts.size() - 1);
 	if(1 == mapParts.size() && -1 == mapParts[0])
@@ -48,7 +48,7 @@ static	::gpk::error_t							partCompare										(::gpk::CViewManager<char_t> al
 	return -1;
 }
 
-		::gpk::error_t							ubk::SMapBlockPath::GetMapId					(const ::gpk::view_const_char & textToAdd)						const	{
+		::gpk::error_t							ubk::SMapBlockPath::MapId						(const ::gpk::view_const_char & textToAdd)						const	{
 	::gpk::array_obj<::gpk::view_const_char>			parts;
 	::gpk::split(textToAdd, '/', parts);
 	const uint32_t										countParts										= parts.size();

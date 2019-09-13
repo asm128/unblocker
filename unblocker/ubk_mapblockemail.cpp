@@ -1,7 +1,7 @@
 #include "ubk_domainer.h"
 #include "gpk_find.h"
 
-::gpk::error_t									ubk::SMapBlockEMail::GetMap			(int32_t index, ::gpk::array_pod<char_t> & email)	const	{
+::gpk::error_t									ubk::SMapBlockEMail::MapGet			(int32_t index, ::gpk::array_pod<char_t> & email)	const	{
 	ree_if(((uint32_t)index) >= Domain.size(), "Index out of range: %i", index);
 	const int32_t										indexViewDomain						= Domain	[index];
 	const int32_t										indexViewUsername					= Username	[index];
@@ -15,7 +15,7 @@
 	return 0;
 }
 
-::gpk::error_t									ubk::SMapBlockEMail::AddMap			(const ::gpk::view_const_char & textToAdd)		{
+::gpk::error_t									ubk::SMapBlockEMail::MapAdd			(const ::gpk::view_const_char & textToAdd)		{
 	::gpk::error_t										indexToReturn						= -1;
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
@@ -27,7 +27,7 @@
 	return indexToReturn;
 }
 
-::gpk::error_t									ubk::SMapBlockEMail::GetMapId	(const ::gpk::view_const_char & textToAdd) 	const	{
+::gpk::error_t									ubk::SMapBlockEMail::MapId			(const ::gpk::view_const_char & textToAdd) 	const	{
 	::gpk::view_const_char								domain								= {};
 	::gpk::view_const_char								username							= {};
 	::ubk::splitEmail(textToAdd, username, domain);

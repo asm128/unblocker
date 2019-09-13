@@ -25,12 +25,13 @@ namespace ubk
 						::gpk::CViewManager<char_t>							AllocatorChars				= {};
 						::gpk::CViewManager<_tIndex>						AllocatorMaps				= {};
 
+		inline			::gpk::error_t										Size						()																const	{ return AllocatorMaps.Counts.size(); }
 						::gpk::error_t										Save						(::gpk::array_pod<byte_t> & output)								const;
 						::gpk::error_t										Load						(const ::gpk::view_const_byte & input);
 
-						::gpk::error_t										AddMap						(const ::gpk::view_const_char & textToAdd);
-						::gpk::error_t										GetMapId					(const ::gpk::view_const_char & textToAdd)						const;
-						::gpk::error_t										GetMap						(int32_t index, ::gpk::array_pod<char_t> & url)					const;
+						::gpk::error_t										MapAdd						(const ::gpk::view_const_char & textToAdd);
+						::gpk::error_t										MapId						(const ::gpk::view_const_char & textToAdd)						const;
+						::gpk::error_t										MapGet						(int32_t index, ::gpk::array_pod<char_t> & url)					const;
 	};
 
 	struct SMapBlockURL {
@@ -43,12 +44,13 @@ namespace ubk
 						::gpk::array_pod<_tIndex>							Query						= {};
 						::gpk::array_pod<_tIndex>							Fragment					= {};
 
+		inline			::gpk::error_t										Size						()																const	{ return Scheme.size(); }
 						::gpk::error_t										Save						(::gpk::array_pod<byte_t> & output)								const;
 						::gpk::error_t										Load						(const ::gpk::view_const_byte & input);
 
-						::gpk::error_t										AddMap						(const ::gpk::view_const_char & textToAdd);
-						::gpk::error_t										GetMapId					(const ::gpk::view_const_char & textToAdd)						const;
-						::gpk::error_t										GetMap						(int32_t index, ::gpk::array_pod<char_t> & url)					const;
+						::gpk::error_t										MapAdd						(const ::gpk::view_const_char & textToAdd);
+						::gpk::error_t										MapId						(const ::gpk::view_const_char & textToAdd)						const;
+						::gpk::error_t										MapGet						(int32_t index, ::gpk::array_pod<char_t> & url)					const;
 
 		inline			::gpk::error_t										GetAuthority				(int32_t index, ::gpk::view_const_char & output)				const	{ const int32_t viewIndex = Authority	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline			::gpk::error_t										GetPath						(int32_t index, ::gpk::view_const_char & output)				const	{ const int32_t viewIndex = Path		[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
@@ -63,12 +65,13 @@ namespace ubk
 						::gpk::array_pod<_tIndex>							Username					;
 						::gpk::array_pod<_tIndex>							Domain						;
 
+		inline			::gpk::error_t										Size						()																const	{ return Username.size(); }
 						::gpk::error_t										Save						(::gpk::array_pod<byte_t> & output)								const;
 						::gpk::error_t										Load						(const ::gpk::view_const_byte & input);
 
-						::gpk::error_t										AddMap						(const ::gpk::view_const_char & textToAdd);
-						::gpk::error_t										GetMapId					(const ::gpk::view_const_char & textToAdd)						const;
-						::gpk::error_t										GetMap						(int32_t index, ::gpk::array_pod<char_t> & email)				const;
+						::gpk::error_t										MapAdd						(const ::gpk::view_const_char & textToAdd);
+						::gpk::error_t										MapId						(const ::gpk::view_const_char & textToAdd)						const;
+						::gpk::error_t										MapGet						(int32_t index, ::gpk::array_pod<char_t> & email)				const;
 
 		inline			::gpk::error_t										GetDomain					(int32_t index, ::gpk::view_const_char & output)				const	{ const int32_t viewIndex = Domain		[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
 		inline			::gpk::error_t										GetUsername					(int32_t index, ::gpk::view_const_char & output)				const	{ const int32_t viewIndex = Username	[index]; output = {Allocator.Views[viewIndex], Allocator.Counts[viewIndex]}; return 0; }
@@ -88,8 +91,8 @@ namespace ubk
 
 						::gpk::view_const_char								DBPath;
 
-		inline			::gpk::error_t										MapGet						(DOMAINER_SYSTEM table, const uint64_t idRecord, ::gpk::array_pod<char_t> & email	)	{ switch(table) { case DOMAINER_SYSTEM_URL: return ::gpk::mapTableGetMap	(Tables.URL	, idRecord, DBPath, email);	case DOMAINER_SYSTEM_EMAIL: return ::gpk::mapTableGetMap	(Tables.Email	, idRecord, DBPath, email);	case DOMAINER_SYSTEM_PATH: return ::gpk::mapTableGetMap	(Tables.Path	, idRecord, DBPath, email);	default: error_printf("Invalid table type: %u '%s'", ::gpk::get_value_label(table).begin()); return -1; } }
-		inline			int64_t												MapGetId					(DOMAINER_SYSTEM table, const ::gpk::view_const_char & email)							{ switch(table) { case DOMAINER_SYSTEM_URL: return ::gpk::mapTableMapId		(Tables.URL	, DBPath, email	);			case DOMAINER_SYSTEM_EMAIL: return ::gpk::mapTableMapId		(Tables.Email	, DBPath, email	);			case DOMAINER_SYSTEM_PATH: return ::gpk::mapTableMapId	(Tables.Path	, DBPath, email	);			default: error_printf("Invalid table type: %u '%s'", ::gpk::get_value_label(table).begin()); return -1; } }
+		inline			::gpk::error_t										MapGet						(DOMAINER_SYSTEM table, const uint64_t idRecord, ::gpk::array_pod<char_t> & email	)	{ switch(table) { case DOMAINER_SYSTEM_URL: return ::gpk::mapTableMapGet	(Tables.URL	, idRecord, DBPath, email);	case DOMAINER_SYSTEM_EMAIL: return ::gpk::mapTableMapGet	(Tables.Email	, idRecord, DBPath, email);	case DOMAINER_SYSTEM_PATH: return ::gpk::mapTableMapGet	(Tables.Path	, idRecord, DBPath, email);	default: error_printf("Invalid table type: %u '%s'", ::gpk::get_value_label(table).begin()); return -1; } }
+		inline			int64_t												MapId						(DOMAINER_SYSTEM table, const ::gpk::view_const_char & email)							{ switch(table) { case DOMAINER_SYSTEM_URL: return ::gpk::mapTableMapId		(Tables.URL	, DBPath, email	);			case DOMAINER_SYSTEM_EMAIL: return ::gpk::mapTableMapId		(Tables.Email	, DBPath, email	);			case DOMAINER_SYSTEM_PATH: return ::gpk::mapTableMapId	(Tables.Path	, DBPath, email	);			default: error_printf("Invalid table type: %u '%s'", ::gpk::get_value_label(table).begin()); return -1; } }
 		inline			int64_t												MapAdd						(DOMAINER_SYSTEM table, const ::gpk::view_const_char & email)							{ switch(table) { case DOMAINER_SYSTEM_URL: return ::gpk::mapTableMapAdd	(Tables.URL	, DBPath, email	);			case DOMAINER_SYSTEM_EMAIL: return ::gpk::mapTableMapAdd	(Tables.Email	, DBPath, email	);			case DOMAINER_SYSTEM_PATH: return ::gpk::mapTableMapAdd	(Tables.Path	, DBPath, email	);			default: error_printf("Invalid table type: %u '%s'", ::gpk::get_value_label(table).begin()); return -1; } }
 	};
 

@@ -20,11 +20,11 @@ int testSMapBlockPath() {
 			};
 		::gpk::array_pod<char_t>			file;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
-			const int32_t						indexOfMap			= smtpOrigin.AddMap(strings[iString]);
+			const int32_t						indexOfMap			= smtpOrigin.MapAdd(strings[iString]);
 			//ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
-			ce_if(smtpOrigin.GetMap(indexOfMap, stored), "%s", "Test failed!");
-			const uint32_t						idStored			= smtpOrigin.GetMapId(stored);
+			ce_if(smtpOrigin.MapGet(indexOfMap, stored), "%s", "Test failed!");
+			const uint32_t						idStored			= smtpOrigin.MapId(stored);
 			//ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
 		}
@@ -35,8 +35,8 @@ int testSMapBlockPath() {
 		for(uint32_t iDomain = 0; iDomain < smtpCopy.AllocatorMaps.Counts.size(); ++iDomain) {
 			::gpk::array_pod<char_t>			stored;
 			::gpk::array_pod<char_t>			loaded;
-			ce_if(smtpOrigin.GetMap(iDomain, stored), "%s", "Test failed!");
-			ce_if(smtpCopy	.GetMap(iDomain, loaded), "%s", "Test failed!");
+			ce_if(smtpOrigin.MapGet(iDomain, stored), "%s", "Test failed!");
+			ce_if(smtpCopy	.MapGet(iDomain, loaded), "%s", "Test failed!");
 			ce_if(loaded != stored, "%s", "Test failed!");
 		}
 	}
@@ -60,11 +60,11 @@ int testSMTPMapBlock() {
 			};
 		::gpk::array_pod<char_t>			file;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
-			const int32_t						indexOfMap			= smtpOrigin.AddMap(strings[iString]);
+			const int32_t						indexOfMap			= smtpOrigin.MapAdd(strings[iString]);
 			ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
-			ce_if(smtpOrigin.GetMap(indexOfMap, stored), "%s", "Test failed!");
-			const uint32_t						idStored			= smtpOrigin.GetMapId(stored);
+			ce_if(smtpOrigin.MapGet(indexOfMap, stored), "%s", "Test failed!");
+			const uint32_t						idStored			= smtpOrigin.MapId(stored);
 			ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
 		}
@@ -87,8 +87,8 @@ int testSMTPMapBlock() {
 			ce_if(strCopyUsername	!= strOriginUsername	, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginUsername).begin(), ::gpk::toString(strCopyUsername	).begin());
 			::gpk::array_pod<char_t>			stored;
 			::gpk::array_pod<char_t>			loaded;
-			ce_if(smtpOrigin.GetMap(iDomain, stored), "%s", "Test failed!");
-			ce_if(smtpCopy	.GetMap(iDomain, loaded), "%s", "Test failed!");
+			ce_if(smtpOrigin.MapGet(iDomain, stored), "%s", "Test failed!");
+			ce_if(smtpCopy	.MapGet(iDomain, loaded), "%s", "Test failed!");
 			ce_if(loaded != stored, "%s", "Test failed!");
 		}
 	}
@@ -109,11 +109,11 @@ int testURLMapBlock() {
 			};
 		::gpk::array_pod<char_t>			file;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
-			const int32_t						indexOfMap			= smtpOrigin.AddMap(strings[iString]);
+			const int32_t						indexOfMap			= smtpOrigin.MapAdd(strings[iString]);
 			ce_if((uint32_t)indexOfMap != iString, "%s", "Test failed!");
 			::gpk::array_pod<char_t>			stored;
-			ce_if(smtpOrigin.GetMap(indexOfMap, stored), "%s", "Test failed!");
-			int32_t								idStored				= smtpOrigin.GetMapId(stored);
+			ce_if(smtpOrigin.MapGet(indexOfMap, stored), "%s", "Test failed!");
+			int32_t								idStored				= smtpOrigin.MapId(stored);
 			ce_if((int32_t)iString != idStored, "%s", "Test failed!");
 			ce_if(stored != strings[iString], "Stored: %s. Original: %s.", ::gpk::toString(stored).begin(), strings[iString].begin());
 		}
@@ -155,8 +155,8 @@ int testURLMapBlock() {
 			ce_if(strCopyFragment	!= strOriginFragment	, "Origin: %s. Copy: %s.", ::gpk::toString(strOriginFragment	).begin(), ::gpk::toString(strCopyFragment	).begin());
 			::gpk::array_pod<char_t>			stored;
 			::gpk::array_pod<char_t>			loaded;
-			ce_if(smtpOrigin.GetMap(iDomain, stored), "%s", "Test failed!");
-			ce_if(smtpCopy	.GetMap(iDomain, loaded), "%s", "Test failed!");
+			ce_if(smtpOrigin.MapGet(iDomain, stored), "%s", "Test failed!");
+			ce_if(smtpCopy	.MapGet(iDomain, loaded), "%s", "Test failed!");
 			ce_if(loaded != stored, "%s", "Test failed!");
 		}
 	}
@@ -180,7 +180,7 @@ int main() {
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString)
 			ce_if(errored(domainer.MapAdd(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString)
-			ce_if(errored(domainer.MapGetId(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
+			ce_if(errored(domainer.MapId(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
 		::gpk::array_pod<char_t> email;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
 			ce_if(errored(domainer.MapGet(::ubk::DOMAINER_SYSTEM_EMAIL, iString, email)), "Failed to add string: %s.", strings[iString].begin());
