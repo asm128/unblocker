@@ -169,6 +169,9 @@ int main() {
 	gerror_if(errored(testURLMapBlock()), "%s", "Error!");
 
 	::ubk::SDomainer	domainer;
+	domainer.Tables.Email	.DBName			= ::gpk::vcs{"email"};
+	domainer.Tables.URL		.DBName			= ::gpk::vcs{"uri"	};
+	domainer.Tables.Path	.DBName			= ::gpk::vcs{"path"	};
 	{
 		const ::gpk::view_const_string		strings	[]	=
 			{"prueba0@prueba.com"
@@ -180,12 +183,14 @@ int main() {
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString)
 			ce_if(errored(domainer.MapAdd(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString)
-			ce_if(errored(domainer.MapId(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
+			ce_if(iString != (domainer.MapId(::ubk::DOMAINER_SYSTEM_EMAIL, strings[iString])), "Failed to add string: %s.", strings[iString].begin());
 		::gpk::array_pod<char_t> email;
 		for(uint32_t iString = 0; iString < ::gpk::size(strings); ++iString) {
-			ce_if(errored(domainer.MapGet(::ubk::DOMAINER_SYSTEM_EMAIL, iString, email)), "Failed to add string: %s.", strings[iString].begin());
 			email.clear();
+			ce_if(errored(domainer.MapGet(::ubk::DOMAINER_SYSTEM_EMAIL, iString, email)), "Failed to add string: %s.", strings[iString].begin());
+			ce_if(email != strings[iString], "Stored string is not equal to source: %s - %s.", strings[iString].begin(), ::gpk::toString(email).begin());
 		}
+		gerror_if(1 < domainer.Tables.Email.Block.size(), "Too many blocks: %u.", domainer.Tables.Email.Block.size());
 	}
 	//::gpk::SRecordMap		indexMap;
 	//::gpk::blockMapSave(file, indexMap, smtpOrigin, ::gpk::view_const_string{"email"}, {});

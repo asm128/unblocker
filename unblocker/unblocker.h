@@ -25,7 +25,7 @@ namespace ubk
 							uint8_t									WeekDay		: 3;
 	};
 
-	typedef				::gpk::SRange<::ubk::SWeekTime>		SOpenHourRange;
+	typedef				::gpk::SRange<::ubk::SWeekTime>			SOpenHourRange;
 
 	struct SPhoneNumber		{
 							char									Number		[28];
